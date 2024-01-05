@@ -1,0 +1,52 @@
+{
+  "name": "@hampfh/use-storage",
+  "version": "1.1.1",
+  "description": "A starter for creating a new React hook",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Hampus Hallkvist",
+    "email": "hampus@hallkvist.org",
+    "url": "https://hallkvi.st"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "react-hooks"
+  ],
+  "main": "./lib/index.js",
+  "scripts": {
+    "build": "rm -rf lib && babel src --out-dir lib --extensions \".ts,.tsx\" --copy-files && tsc --emitDeclarationOnly --outDir lib",
+    "bump": "npm version",
+    "example": "cd example && yarn install && yarn package",
+    "prepublishOnly": "yarn build",
+    "watch": "nodemon --watch src --exec \"yarn build\""
+  },
+  "dependencies": {
+    "@babel/cli": "^7.14.8",
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-react": "^7.14.5",
+    "nodemon": "^2.0.12",
+    "react-redux": "^9.0.4",
+    "reselect": "^5.0.1",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@react-native-async-storage/async-storage": "^1.21.0",
+    "@reduxjs/toolkit": "^2.0.1",
+    "@types/react": "^18.2.45",
+    "metro-react-native-babel-preset": "^0.77.0",
+    "react": "^18.2.0",
+    "react-native": "^0.73.1",
+    "redux": "^5.0.1",
+    "zod": "^3.22.4"
+  },
+  "peerDependencies": {
+    "@react-native-async-storage/async-storage": "^1",
+    "@reduxjs/toolkit": "^2",
+    "react": "^15 || ^16 || ^17 || ^18",
+    "react-native": "^0.71 || ^0.72 || 0.73",
+    "redux": "^5",
+    "zod": "^3"
+  }
+}
