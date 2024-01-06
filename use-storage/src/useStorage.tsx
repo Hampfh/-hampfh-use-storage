@@ -5,6 +5,7 @@ import { setField } from "./store/persistent_slice"
 import { RegisteredStorage } from "./types"
 import { InferredStore } from "./provider"
 import { storage, storageSchema } from "./register"
+import { ZodError } from "zod"
 
 /**
  * Asyncronously clears a substate from the persistent storage
@@ -12,7 +13,12 @@ import { storage, storageSchema } from "./register"
  * @returns void
  */
 export async function clearStorageFile(file: keyof RegisteredStorage) {
-	return await storage.removeItem(file as string)
+	try {
+		await storage.removeItem(file as string)
+		return true
+	} catch (error) {
+		return false
+	}
 }
 
 /**
@@ -38,22 +44,40 @@ export async function writeStorageFile<
 /**
  * Asynchronously reads a substate from the persistent storage
  * @param file A key of the specified schmea type, specifying which substate to clear
+ * @param options Provide options to modify the behavior of the function
+ * @param options.clearOnCorrupt Whether to clear the substate from the persistent storage if it does not match the specified schema. Default false
+ * @param options.onCorrupt Invoked when fetched substate no longer matches specified schema
  * @returns The substate read from the persistent storage, or null if it does not exist
  */
 export async function readStorageFile<
 	Schema extends InferredStore<RegisteredStorage>,
 	K extends keyof Schema & string
->(file: K): Promise<Schema[K] | null> {
-	const result = await storage.getItem(file as string)
-	if (result == null) return null
+>(
+	file: K,
+	options?: {
+		clearOnCorrupt?: boolean
+		onCorrupt?: (error: ZodError<any>, parsed: any) => Promise<void>
+	}
+): Promise<Schema[K] | null> {
+	const rawData = await (async () => {
+		try {
+			return await storage.getItem(file as string)
+		} catch (error) {
+			return null
+		}
+	})()
+	if (rawData == null) return null
+
 	try {
-		const parsed = JSON.parse(result)
+		const parsed = JSON.parse(rawData)
 		const parseResult = storageSchema[file].safeParse(parsed)
-		if (parseResult.success) {
-			return parsed
-		} else return null
+		if (parseResult.success) return parsed
+		else {
+			await options?.onCorrupt?.(parseResult.error, parsed)
+			return null
+		}
 	} catch (error) {
-		storage.removeItem(file as string)
+		if (options?.clearOnCorrupt === true) storage.removeItem(file as string)
 	}
 	return null
 }
