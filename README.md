@@ -7,7 +7,7 @@ Store fully typed reactive persistent state in react native. useStorage wraps bo
 ### 📚 Install peer dependencies
 
 ```
-yarn install @react-native-async-storage/async-storage redux zod @reduxjs/toolkit
+yarn install @react-native-async-storage/async-storage zod redux @reduxjs/toolkit
 ```
 
 Define your persistent files at the beginning of your app and wrap the application in the provider
@@ -42,13 +42,13 @@ export default function App() {
 
 ```tsx
 function Component() {
-	const { value } = useStorage("file")
+  const { value } = useStorage("file")
 
-	function onClick() {
-		console.log(value)
-	}
+  function onClick() {
+    console.log(value)
+  }
 
-	return <Button onPress={onClick} />
+  return <Button onPress={onClick} />
 }
 ```
 
