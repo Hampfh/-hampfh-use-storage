@@ -8,7 +8,7 @@ export interface Register {
 	// schema: PersistentStorage
 }
 
-type AnySchema = Record<string | number | symbol, z.Schema>
+type AnySchema = Record<string, z.Schema>
 
 export type RegisteredStorage = Register extends {
 	schema: infer TSchema extends AnySchema
