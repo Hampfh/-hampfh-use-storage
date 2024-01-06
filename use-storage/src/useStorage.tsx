@@ -6,10 +6,21 @@ import { RegisteredStorage } from "./types"
 import { InferredStore } from "./provider"
 import { storage, storageSchema } from "./register"
 
+/**
+ * Asyncronously clears a substate from the persistent storage
+ * @param file A key of the specified schmea type, specifying which substate to clear
+ * @returns void
+ */
 export async function clearStorageFile(file: keyof RegisteredStorage) {
 	return await storage.removeItem(file as string)
 }
 
+/**
+ * Asyncronously writes a substate to the persistent storage
+ * @param file A key of the specified schmea type, specifying which substate to clear
+ * @param data The new substate to write to the persistent storage
+ * @returns Whether the write was successful
+ */
 export async function writeStorageFile<
 	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
@@ -24,6 +35,11 @@ export async function writeStorageFile<
 	}
 }
 
+/**
+ * Asynchronously reads a substate from the persistent storage
+ * @param file A key of the specified schmea type, specifying which substate to clear
+ * @returns The substate read from the persistent storage, or null if it does not exist
+ */
 export async function readStorageFile<
 	Schema extends InferredStore<RegisteredStorage>,
 	K extends keyof Schema & string
@@ -42,6 +58,11 @@ export async function readStorageFile<
 	return null
 }
 
+/**
+ * A hook for interacting with the persistent storage within the context of react
+ * @param file A key of the specified schmea type, specifying which substate to clear
+ * @returns A set of functions for interacting with the persistent storage, and the current value of the substate
+ */
 export function useStorage<
 	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
