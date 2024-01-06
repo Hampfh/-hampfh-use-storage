@@ -3,7 +3,11 @@ root = true
 end_of_line = lf
 
 
-[*.{json,yml,md,mdx}]
+[*.{json,yml}]
+indent_size = 2
+indent_style = space
+
+[*.{md,mdx}]
 indent_size = 2
 indent_style = space
 

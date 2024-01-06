@@ -16,23 +16,22 @@ Define your persistent files at the beginning of your app and wrap the applicati
 import { createStore, StorageProvider } from "@hampfh/use-storage"
 // index.ts (App.tsx in expo)
 export const { useStorage } = createStore(
-	{
-		file: z.object({
-			version: z.string(),
-			clickCount: z.number()
-		})
-		file2: // other file schema ...
-	},
-	AsyncStorage // Pass in storage solution
+  {
+    file: z.object({
+      version: z.string(),
+      clickCount: z.number()
+    })
+    file2: // other file schema ...
+  },
+  AsyncStorage // Pass in storage solution
 )
 
-
 export default function App() {
-	return (
-		<StorageProvider>
-			// ... rest of your app
-		</StorageProvider>
-	)
+  return (
+    <StorageProvider>
+      // ... rest of your app
+    </StorageProvider>
+  )
 }
 ```
 
@@ -42,13 +41,13 @@ export default function App() {
 
 ```tsx
 function Component() {
-	const { value } = useStorage("file")
+  const { value } = useStorage("file")
 
-	function onClick() {
-		console.log(value)
-	}
+  function onClick() {
+    console.log(value)
+  }
 
-	return <Button onPress={onClick} />
+  return <Button onPress={onClick} />
 }
 ```
 
@@ -56,28 +55,28 @@ function Component() {
 
 ```tsx
 function Component() {
-	const { value, merge, write } = useStorage("file")
+  const { value, merge, write } = useStorage("file")
 
-	async function incrementClick() {
-		await merge({
-			clickCount: value.clickCount + 1
-		})
-	}
+  async function incrementClick() {
+    await merge({
+      clickCount: value.clickCount + 1
+    })
+  }
 
-	async function set() {
-		await write({
-			version: "1.0.0",
-			clickCount: 0
-		})
-	}
+  async function set() {
+    await write({
+      version: "1.0.0",
+      clickCount: 0
+    })
+  }
 
-	return (
-		<>
-			<Text>{value}</Text>
-			<Button title="Increment" onPress={incrementClick} />
-			<Button title="Set" onPress={set}>
-		</>
-	)
+  return (
+    <>
+      <Text>{value}</Text>
+      <Button title="Increment" onPress={incrementClick} />
+      <Button title="Set" onPress={set}>
+    </>
+  )
 }
 ```
 
