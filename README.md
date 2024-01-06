@@ -2,23 +2,23 @@
 
 Store fully typed reactive persistent state in react native. useStorage wraps both async storage and redux toolkit allowing the benefits of reactivness and persistency at the same time.
 
-- [Initialization](#-initialization)
-  - [Install peer dependencies](#-install-peer-dependencies)
-  - [Setup](#-setup)
-- [Usage](#usage)
+- [⚙️ Setup](#setup)
+  - [Install peer dependencies](#install-peer-dependencies)
+  - [Initialize storage](#initialize-storage)
+- [🚀 Usage](#usage)
   - [Read value](#read-value)
   - [Write value](#write-value)
   - [Action on load](#action-on-load)
-- [API](#api)
-  - [useStorage](#usestorage)
+- [📚 API](#api)
+  - [useStorage](#usestorage-hook)
   - [readStorageFile](#readstoragefile)
   - [writeStorageFile](#writestoragefile)
   - [clearStorageFile](#clearstoragefile)
   - [StorageProvider](#storageprovider)
 
-## 🚀 Initialization
+## Setup
 
-### 📚 Install peer dependencies
+### Install peer dependencies
 
 ```
 yarn install @react-native-async-storage/async-storage zod redux @reduxjs/toolkit
@@ -26,7 +26,7 @@ yarn install @react-native-async-storage/async-storage zod redux @reduxjs/toolki
 
 Define your persistent files at the beginning of your app and wrap the application in the provider
 
-### Setup
+### Initialize storage
 
 ```tsx
 import { Storage, StorageProvider } from "@hampfh/use-storage"
@@ -125,7 +125,7 @@ function Component() {
 
 ## API
 
-### useStorage
+### useStorage hook
 
 ```tsx
 const { initialized, value, write, merge, clear } = useStorage(file: string)
