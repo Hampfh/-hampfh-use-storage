@@ -6,4 +6,4 @@ export {
 
 export { createStore, StorageProvider } from "./provider"
 
-export { PersistentStorage } from "./types"
+export * from "./types"

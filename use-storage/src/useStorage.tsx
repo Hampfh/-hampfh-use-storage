@@ -1,18 +1,18 @@
 import React from "react"
-console.log("REACT inner", React)
 import { selectPersistedField } from "./persistent_selectors"
 import { useDispatch, useSelector } from "react-redux"
 import { setField } from "./persistent_slice"
-import { PersistentStorage, storage, storageSchema } from "./types"
+import { RegisteredStorage, storage, storageSchema } from "./types"
 import { InferredStore } from "./provider"
 
-export async function clearStorageFile(file: keyof PersistentStorage) {
+export async function clearStorageFile(file: keyof RegisteredStorage) {
 	return await storage.removeItem(file as string)
 }
 
 export async function writeStorageFile<
-	T extends InferredStore<PersistentStorage>
->(file: keyof T & string, data: T[keyof T]) {
+	Schema extends InferredStore<RegisteredStorage>,
+	Key extends keyof Schema & string
+>(file: Key, data: Schema[Key]) {
 	const parseResult = storageSchema[file].safeParse(data)
 	if (!parseResult.success) return false
 	try {
@@ -23,13 +23,8 @@ export async function writeStorageFile<
 	}
 }
 
-export const readStorageFile = <
-	Schema extends InferredStore<PersistentStorage>
->(
-	file: keyof Schema & string
-) => _readStorageFile(file)
-async function _readStorageFile<
-	Schema extends InferredStore<PersistentStorage>,
+export async function readStorageFile<
+	Schema extends InferredStore<RegisteredStorage>,
 	K extends keyof Schema & string
 >(file: K): Promise<Schema[K] | null> {
 	const result = await storage.getItem(file as string)
@@ -47,9 +42,9 @@ async function _readStorageFile<
 }
 
 export default function useStorage<
-	T extends PersistentStorage,
-	K extends keyof T & string
->(file: K) {
+	Schema extends RegisteredStorage,
+	Key extends keyof Schema & string
+>(file: Key) {
 	const [initialized, setInitialized] = React.useState(false)
 	const dispatch = useDispatch()
 	const fieldValue = useSelector(state =>
@@ -70,14 +65,14 @@ export default function useStorage<
 			.finally(() => setInitialized(true))
 	}, [])
 
-	async function write(data: T[K]) {
+	async function write(data: Schema[Key]) {
 		const parseResult = storageSchema[file].safeParse(data)
 		if (!parseResult.success) return false
 		try {
 			dispatch(
 				setField({
 					key: file,
-					subState: data as PersistentStorage[K]
+					subState: data as RegisteredStorage[Key]
 				})
 			)
 			await storage.setItem(file as string, JSON.stringify(data))
@@ -89,7 +84,7 @@ export default function useStorage<
 	}
 
 	return {
-		valid: (data: any): data is T[K] => {
+		valid: (data: any): data is Schema[Key] => {
 			const result = storageSchema[file].safeParse(data)
 			if (result.success) return true
 			return false
@@ -104,14 +99,14 @@ export default function useStorage<
 			clearStorageFile(file as string)
 		},
 		write,
-		merge: async (updatedFields: Partial<T[keyof T]>) => {
+		merge: async (updatedFields: Partial<Schema[keyof Schema]>) => {
 			if (updatedFields == null) return
 			return await write({
 				...fieldValue,
 				...updatedFields
-			} as T[K])
+			} as Schema[Key])
 		},
-		value: fieldValue as T[K],
+		value: fieldValue as Schema[Key],
 		initialized: initialized
 	}
 }

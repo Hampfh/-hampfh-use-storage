@@ -1,42 +1,12 @@
 import { Button, StyleSheet, Text, View } from "react-native"
-import { z } from "zod"
 import {
-	createStore,
 	StorageProvider,
 	clearStorageFile,
-	PersistentStorage,
-	readStorageFile
+	readStorageFile,
+	writeStorageFile
 } from "@hampfh/use-storage"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import React from "react"
-
-const schema = {
-	file: z.object({
-		version: z.string(),
-		clickCount: z.number()
-	}),
-	file2: z.object({
-		hello: z.string(),
-		world: z.number()
-	})
-}
-export const { useStorage } = createStore(schema, AsyncStorage)
-
-/* declare module "@hampfh/use-storage" {
-	type Temp = typeof schema
-	interface PersistentStorage extends Temp {}
-}
-
-const test: PersistentStorage */
-
-async function test2() {
-	const value = await readStorageFile<typeof schema>("file")
-
-	await clearStorageFile("file")
-	const test = await readStorageFile("file")
-
-	return null
-}
+import { useStorage } from "./utils/storage_schema"
 
 function Component() {
 	const { value, write } = useStorage("file")
@@ -46,6 +16,18 @@ function Component() {
 			clickCount: 1,
 			version: "1"
 		})
+	}
+
+	async function test2() {
+		await clearStorageFile("file")
+		const file1 = await readStorageFile("file")
+		console.log(file1?.clickCount)
+		const file2 = await readStorageFile("file2")
+		await writeStorageFile("file", {
+			clickCount: 2,
+			version: ""
+		})
+		console.log(file2?.world)
 	}
 
 	return (

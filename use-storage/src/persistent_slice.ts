@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
-import { PersistentStorage } from "./types"
-const initialState = {} as PersistentStorage
+import { RegisteredStorage } from "./types"
+const initialState = {} as RegisteredStorage
 
 const persistentSlice = createSlice({
 	name: "account",
@@ -9,8 +9,8 @@ const persistentSlice = createSlice({
 		setField: (
 			state,
 			action: PayloadAction<{
-				key: keyof PersistentStorage
-				subState: PersistentStorage[keyof PersistentStorage] | undefined
+				key: keyof RegisteredStorage
+				subState: RegisteredStorage[keyof RegisteredStorage] | undefined
 			}>
 		) => {
 			// @ts-ignore

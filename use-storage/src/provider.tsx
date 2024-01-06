@@ -3,14 +3,14 @@ import { Provider } from "react-redux"
 import store from "./store"
 import { z } from "zod"
 import useStorage, { clearStorageFile, writeStorageFile } from "./useStorage"
-import { PersistentStorage, setStorageSchema, storageSchema } from "./types"
+import { RegisteredStorage, setStorageSchema, storageSchema } from "./types"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
-export type InferredStore<T extends PersistentStorage> = {
+export type InferredStore<T extends RegisteredStorage> = {
 	[K in keyof T]: z.infer<T[K]>
 }
 
-export function createStore<T extends PersistentStorage>(
+export function createStore<T extends RegisteredStorage>(
 	schema: T,
 	storage: typeof AsyncStorage
 ) {
@@ -23,7 +23,7 @@ export function createStore<T extends PersistentStorage>(
 	}
 }
 
-export function StorageProvider<const T extends PersistentStorage>({
+export function StorageProvider<const T extends RegisteredStorage>({
 	children
 }: {
 	children: React.ReactNode
