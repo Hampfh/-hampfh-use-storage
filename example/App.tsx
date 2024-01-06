@@ -1,19 +1,60 @@
-import { StyleSheet, Text, View } from "react-native"
+import { Button, StyleSheet, Text, View } from "react-native"
 import { z } from "zod"
-import { createStore } from "@hampfh/use-storage"
+import {
+	createStore,
+	StorageProvider,
+	clearStorageFile,
+	PersistentStorage,
+	readStorageFile
+} from "@hampfh/use-storage"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import React, { useEffect } from "react"
-import { StorageProvider } from "@hampfh/use-storage/lib/provider"
+import React from "react"
 
-export const { useStorage } = createStore(
-	{
-		hello: z.object({
-			test: z.string(),
-			other: z.number()
+const schema = {
+	file: z.object({
+		version: z.string(),
+		clickCount: z.number()
+	}),
+	file2: z.object({
+		hello: z.string(),
+		world: z.number()
+	})
+}
+export const { useStorage } = createStore(schema, AsyncStorage)
+
+/* declare module "@hampfh/use-storage" {
+	type Temp = typeof schema
+	interface PersistentStorage extends Temp {}
+}
+
+const test: PersistentStorage */
+
+async function test2() {
+	const value = await readStorageFile<typeof schema>("file")
+
+	await clearStorageFile("file")
+	const test = await readStorageFile("file")
+
+	return null
+}
+
+function Component() {
+	const { value, write } = useStorage("file")
+
+	async function test() {
+		await write({
+			clickCount: 1,
+			version: "1"
 		})
-	},
-	AsyncStorage
-)
+	}
+
+	return (
+		<View>
+			<Text>{value.clickCount}</Text>
+			<Button title="Increment" onPress={test} />
+		</View>
+	)
+}
 
 export default function App() {
 	return (
@@ -26,26 +67,9 @@ export default function App() {
 				>
 					Test application
 				</Text>
-				<InnerComponent />
+				<Component />
 			</View>
 		</StorageProvider>
-	)
-}
-
-function InnerComponent() {
-	const { value, write } = useStorage("hello")
-
-	useEffect(() => {
-		write({
-			test: "test",
-			other: 123
-		})
-	}, [])
-
-	return (
-		<View>
-			<Text>{JSON.stringify(value)}</Text>
-		</View>
 	)
 }
 

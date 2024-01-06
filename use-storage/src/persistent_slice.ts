@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
-import { SchemaGenericType } from "./types"
-const initialState = {} as SchemaGenericType
+import { PersistentStorage } from "./types"
+const initialState = {} as PersistentStorage
 
 const persistentSlice = createSlice({
 	name: "account",
@@ -9,14 +9,14 @@ const persistentSlice = createSlice({
 		setField: (
 			state,
 			action: PayloadAction<{
-				key: keyof SchemaGenericType
-				subState: SchemaGenericType[keyof SchemaGenericType] | undefined
+				key: keyof PersistentStorage
+				subState: PersistentStorage[keyof PersistentStorage] | undefined
 			}>
 		) => {
 			// @ts-ignore
 			state[action.payload.key] = action.payload.subState
-		},
-	},
+		}
+	}
 })
 
 export const { setField } = persistentSlice.actions

@@ -3,16 +3,16 @@ console.log("REACT inner", React)
 import { selectPersistedField } from "./persistent_selectors"
 import { useDispatch, useSelector } from "react-redux"
 import { setField } from "./persistent_slice"
-import { SchemaGenericType, storage, storageSchema } from "./types"
+import { PersistentStorage, storage, storageSchema } from "./types"
+import { InferredStore } from "./provider"
 
-export async function clearStorageFile<const T extends {}>(file: keyof T) {
+export async function clearStorageFile(file: keyof PersistentStorage) {
 	return await storage.removeItem(file as string)
 }
 
 export async function writeStorageFile<
-	const T extends SchemaGenericType,
-	K extends keyof T & string
->(file: K, data: T[K]) {
+	T extends InferredStore<PersistentStorage>
+>(file: keyof T & string, data: T[keyof T]) {
 	const parseResult = storageSchema[file].safeParse(data)
 	if (!parseResult.success) return false
 	try {
@@ -23,10 +23,15 @@ export async function writeStorageFile<
 	}
 }
 
-export async function readStorageFile<
-	const T extends SchemaGenericType,
-	K extends keyof T
->(file: K): Promise<T[K] | null> {
+export const readStorageFile = <
+	Schema extends InferredStore<PersistentStorage>
+>(
+	file: keyof Schema & string
+) => _readStorageFile(file)
+async function _readStorageFile<
+	Schema extends InferredStore<PersistentStorage>,
+	K extends keyof Schema & string
+>(file: K): Promise<Schema[K] | null> {
 	const result = await storage.getItem(file as string)
 	if (result == null) return null
 	try {
@@ -41,9 +46,10 @@ export async function readStorageFile<
 	return null
 }
 
-export default function useStorage<T extends {}, const K extends keyof T>(
-	file: K
-) {
+export default function useStorage<
+	T extends PersistentStorage,
+	K extends keyof T & string
+>(file: K) {
 	const [initialized, setInitialized] = React.useState(false)
 	const dispatch = useDispatch()
 	const fieldValue = useSelector(state =>
@@ -71,7 +77,7 @@ export default function useStorage<T extends {}, const K extends keyof T>(
 			dispatch(
 				setField({
 					key: file,
-					subState: data as SchemaGenericType<T>[K]
+					subState: data as PersistentStorage[K]
 				})
 			)
 			await storage.setItem(file as string, JSON.stringify(data))
@@ -98,7 +104,7 @@ export default function useStorage<T extends {}, const K extends keyof T>(
 			clearStorageFile(file as string)
 		},
 		write,
-		merge: async (updatedFields: Partial<T[K]>) => {
+		merge: async (updatedFields: Partial<T[keyof T]>) => {
 			if (updatedFields == null) return
 			return await write({
 				...fieldValue,
