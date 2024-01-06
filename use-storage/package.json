@@ -1,18 +1,30 @@
 {
   "name": "@hampfh/use-storage",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "private": false,
   "description": "A starter for creating a new React hook",
   "license": "Apache-2.0",
   "author": {
     "name": "Hampus Hallkvist",
-    "email": "hampus@hallkvist.org",
+    "email": "hampus@hallkvi.st",
     "url": "https://hallkvi.st"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hampfh/use-storage.git"
+  },
+  "bugs": {
+    "email": "hampus@hallkvi.st",
+    "url": "https://github.com/Hampfh/use-storage/issues"
   },
   "keywords": [
     "react",
     "hooks",
-    "react-hooks"
+    "react-hooks",
+    "typescript",
+    "persistency",
+    "storage",
+    "reactive"
   ],
   "main": "./lib/index.js",
   "scripts": {
@@ -27,7 +39,6 @@
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
-    "nodemon": "^2.0.12",
     "react-redux": "^9.0.4",
     "reselect": "^5.0.1",
     "typescript": "^5.3.3"
