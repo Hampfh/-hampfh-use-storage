@@ -1,9 +1,4 @@
-export {
-	clearStorageFile,
-	readStorageFile,
-	writeStorageFile
-} from "./useStorage"
+export { Storage, StorageProvider } from "./provider"
 
-export { createStore, StorageProvider } from "./provider"
-
+export * from "./useStorage"
 export * from "./types"

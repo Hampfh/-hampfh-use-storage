@@ -3,10 +3,10 @@ import {
 	StorageProvider,
 	clearStorageFile,
 	readStorageFile,
+	useStorage,
 	writeStorageFile
 } from "@hampfh/use-storage"
 import React from "react"
-import { useStorage } from "./utils/storage_schema"
 
 function Component() {
 	const { value, write } = useStorage("file")

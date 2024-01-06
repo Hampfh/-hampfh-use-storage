@@ -5,6 +5,9 @@ export const store = configureStore({
 	reducer: {
 		persisted: persistentSlice
 	},
+	devTools: {
+		name: "@hampfh/use-storage"
+	},
 	middleware: getDefaultMiddleware => getDefaultMiddleware()
 })
 

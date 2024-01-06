@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
-import { RegisteredStorage } from "./types"
+import { RegisteredStorage } from "../types"
 const initialState = {} as RegisteredStorage
 
 const persistentSlice = createSlice({

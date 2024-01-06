@@ -1,9 +1,10 @@
 import React from "react"
-import { selectPersistedField } from "./persistent_selectors"
+import { selectPersistedField } from "./store/persistent_selectors"
 import { useDispatch, useSelector } from "react-redux"
-import { setField } from "./persistent_slice"
-import { RegisteredStorage, storage, storageSchema } from "./types"
+import { setField } from "./store/persistent_slice"
+import { RegisteredStorage } from "./types"
 import { InferredStore } from "./provider"
+import { storage, storageSchema } from "./register"
 
 export async function clearStorageFile(file: keyof RegisteredStorage) {
 	return await storage.removeItem(file as string)
@@ -41,8 +42,8 @@ export async function readStorageFile<
 	return null
 }
 
-export default function useStorage<
-	Schema extends RegisteredStorage,
+export function useStorage<
+	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
 >(file: Key) {
 	const [initialized, setInitialized] = React.useState(false)
