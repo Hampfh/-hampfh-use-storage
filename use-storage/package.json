@@ -1,6 +1,6 @@
 {
   "name": "@hampfh/use-storage",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "private": false,
   "description": "A starter for creating a new React hook",
   "license": "Apache-2.0",
@@ -30,9 +30,7 @@
   "scripts": {
     "build": "rm -rf lib && babel src --out-dir lib --extensions \".ts,.tsx\" --copy-files && tsc --emitDeclarationOnly --outDir lib",
     "bump": "npm version",
-    "example": "cd example && yarn install && yarn package",
-    "prepublishOnly": "yarn build",
-    "watch": "nodemon --watch src --exec \"yarn build\""
+    "swap-lib-readme": "rm -f README.md && cp ../README.md README.md"
   },
   "dependencies": {
     "@babel/cli": "^7.14.8",

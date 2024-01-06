@@ -3,8 +3,8 @@ import { Provider } from "react-redux"
 import store from "./store/store"
 import { z } from "zod"
 import { RegisteredStorage } from "./types"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import { setStorageSchema } from "./register"
+import { BaseAdapter, StorageAdapter } from "./adapters"
 
 export type InferredStore<T extends RegisteredStorage> = {
 	[K in keyof T]: z.infer<T[K]>
@@ -16,9 +16,9 @@ export type InferredStore<T extends RegisteredStorage> = {
  */
 export function Storage<T extends RegisteredStorage>(options: {
 	schema: T
-	storage: typeof AsyncStorage
+	adapter?: StorageAdapter
 }) {
-	setStorageSchema(options.schema, options.storage)
+	setStorageSchema(options.schema, options.adapter ?? new BaseAdapter())
 }
 
 /**

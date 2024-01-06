@@ -1,5 +1,4 @@
-import { Storage } from "@hampfh/use-storage"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { Storage, readStorageFile, writeStorageFile } from "@hampfh/use-storage"
 import { z } from "zod"
 
 const schema = {
@@ -13,7 +12,7 @@ const schema = {
 	})
 }
 
-Storage({ schema, storage: AsyncStorage })
+Storage({ schema })
 
 declare module "@hampfh/use-storage" {
 	interface Register {

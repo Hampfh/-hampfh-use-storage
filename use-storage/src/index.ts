@@ -1,4 +1,5 @@
-export { Storage, StorageProvider } from "./provider"
+export * from "./provider"
 
 export * from "./useStorage"
-export { Register } from "./types"
+export * from "./adapters"
+export * from "./types"

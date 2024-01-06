@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { setField } from "./store/persistent_slice"
 import { RegisteredStorage } from "./types"
 import { InferredStore } from "./provider"
-import { storage, storageSchema } from "./register"
+import { adapter, storageSchema } from "./register"
 import { ZodError } from "zod"
 import store from "./store/store"
 
@@ -15,7 +15,8 @@ import store from "./store/store"
  */
 export async function clearStorageFile(file: keyof RegisteredStorage) {
 	try {
-		await storage.removeItem(file as string)
+		// TODO reiterate on this, manage default state, manage reactive state
+		await adapter.clearFile(file as string)
 		return true
 	} catch (error) {
 		return false
@@ -41,7 +42,7 @@ export async function writeStorageFile<
 	const previousState = store.getState().persisted[file]
 	try {
 		store.dispatch(setField({ key: file, subState: data }))
-		await storage.setItem(file, JSON.stringify(data))
+		await adapter.writeFile(file as string, data)
 		return true
 	} catch (error) {
 		store.dispatch(setField({ key: file, subState: previousState }))
@@ -67,25 +68,24 @@ export async function readStorageFile<
 		onCorrupt?: (error: ZodError<any>, parsed: any) => Promise<void>
 	}
 ): Promise<Schema[K] | null> {
-	const rawData = await (async () => {
+	const data = await (async () => {
 		try {
-			return await storage.getItem(file as string)
+			return await adapter.readFile(file as string)
 		} catch (error) {
 			return null
 		}
 	})()
-	if (rawData == null) return null
+	if (data == null) return null
 
 	try {
-		const parsed = JSON.parse(rawData)
-		const parseResult = storageSchema[file].safeParse(parsed)
-		if (parseResult.success) return parsed
+		const parseResult = storageSchema[file].safeParse(data)
+		if (parseResult.success) return data
 		else {
-			await options?.onCorrupt?.(parseResult.error, parsed)
+			await options?.onCorrupt?.(parseResult.error, data)
 			return null
 		}
 	} catch (error) {
-		if (options?.clearOnCorrupt === true) storage.removeItem(file as string)
+		if (options?.clearOnCorrupt === true) adapter.clearFile(file as string)
 	}
 	return null
 }
@@ -131,7 +131,7 @@ export function useStorage<
 					subState: data as RegisteredStorage[Key]
 				})
 			)
-			await storage.setItem(file as string, JSON.stringify(data))
+			await adapter.writeFile(file as string, data)
 
 			return true
 		} catch (error) {

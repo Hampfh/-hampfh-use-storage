@@ -8,6 +8,8 @@ import {
 } from "@hampfh/use-storage"
 import React from "react"
 
+import "./utils/storage_schema"
+
 function Component() {
 	const { value, write } = useStorage("file")
 
@@ -39,6 +41,7 @@ function Component() {
 }
 
 export default function App() {
+	return null
 	return (
 		<StorageProvider>
 			<View style={styles.container}>

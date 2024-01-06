@@ -1,12 +1,21 @@
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import { RegisteredStorage } from "./types"
+import { StorageAdapter } from "./adapters"
 
 export let storageSchema = {} as RegisteredStorage
-export let storage = null as unknown as typeof AsyncStorage
+export let adapter = null as unknown as StorageAdapter
+
 export function setStorageSchema(
 	schema: RegisteredStorage,
-	storageInstance: typeof AsyncStorage
+	storageInstance: StorageAdapter
 ) {
+	if (
+		"clearFile" in storageInstance === false ||
+		"writeFile" in storageInstance === false ||
+		"readFile" in storageInstance === false
+	) {
+		throw new Error("Invalid adapter provided to use-storage")
+	}
+
 	storageSchema = schema
-	storage = storageInstance
+	adapter = storageInstance
 }
