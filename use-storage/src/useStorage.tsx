@@ -6,6 +6,7 @@ import { RegisteredStorage } from "./types"
 import { InferredStore } from "./provider"
 import { storage, storageSchema } from "./register"
 import { ZodError } from "zod"
+import store from "./store/store"
 
 /**
  * Asyncronously clears a substate from the persistent storage
@@ -26,17 +27,24 @@ export async function clearStorageFile(file: keyof RegisteredStorage) {
  * @param file A key of the specified schmea type, specifying which substate to clear
  * @param data The new substate to write to the persistent storage
  * @returns Whether the write was successful
+ * @throws If input data does not match the specified schema
  */
 export async function writeStorageFile<
 	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
 >(file: Key, data: Schema[Key]) {
 	const parseResult = storageSchema[file].safeParse(data)
-	if (!parseResult.success) return false
+	if (!parseResult.success)
+		throw new Error("Could not write to substate due to unsynced schema")
+
+	// Create a "transaction" to revert the state if the write fails
+	const previousState = store.getState().persisted[file]
 	try {
+		store.dispatch(setField({ key: file, subState: data }))
 		await storage.setItem(file, JSON.stringify(data))
 		return true
 	} catch (error) {
+		store.dispatch(setField({ key: file, subState: previousState }))
 		return false
 	}
 }
@@ -114,6 +122,8 @@ export function useStorage<
 	async function write(data: Schema[Key]) {
 		const parseResult = storageSchema[file].safeParse(data)
 		if (!parseResult.success) return false
+
+		const previousState = fieldValue
 		try {
 			dispatch(
 				setField({
@@ -125,11 +135,14 @@ export function useStorage<
 
 			return true
 		} catch (error) {
+			dispatch(setField({ key: file, subState: previousState }))
 			return false
 		}
 	}
 
 	return {
+		value: fieldValue as Schema[Key],
+		initialized: initialized,
 		valid: (data: any): data is Schema[Key] => {
 			const result = storageSchema[file].safeParse(data)
 			if (result.success) return true
@@ -151,8 +164,6 @@ export function useStorage<
 				...fieldValue,
 				...updatedFields
 			} as Schema[Key])
-		},
-		value: fieldValue as Schema[Key],
-		initialized: initialized
+		}
 	}
 }
