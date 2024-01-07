@@ -5,9 +5,9 @@ import { RegisteredStorage } from "../types"
 export class LocalStorageAdapter implements StorageAdapter {
 	base64 = false
 	prefix = ""
-	constructor(options?: { base64?: boolean; keyPrefix?: string }) {
+	constructor(options?: { base64?: boolean; prefix?: string }) {
 		if (options?.base64) this.base64 = true
-		if (options?.keyPrefix) this.prefix = options.keyPrefix
+		if (options?.prefix) this.prefix = options.prefix
 	}
 	async clearFile(file: string) {
 		let fileKey = file
