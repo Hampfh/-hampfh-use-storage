@@ -14,11 +14,29 @@ import store from "./store/store"
  * @returns void
  */
 export async function clearStorageFile(file: keyof RegisteredStorage) {
+	// Create a "transaction" to revert the state if the write fails
+	const previousState = store.getState().persisted[file]
+
+	const parsedState = storageSchema[file].safeParse(undefined)
+
+	if (parsedState.success === false) {
+		console.warn(
+			`Substate "${file}" cleared but is neither optional or has a default value, try to add .default() or .optional()`
+		)
+	}
+
+	store.dispatch(
+		setField({
+			key: file,
+			subState: !parsedState.success ? undefined : parsedState.data
+		})
+	)
 	try {
-		// TODO reiterate on this, manage default state, manage reactive state
 		await adapter.clearFile(file as string)
 		return true
 	} catch (error) {
+		// Rollback the state change
+		store.dispatch(setField({ key: file, subState: previousState }))
 		return false
 	}
 }
@@ -40,8 +58,8 @@ export async function writeStorageFile<
 
 	// Create a "transaction" to revert the state if the write fails
 	const previousState = store.getState().persisted[file]
+	store.dispatch(setField({ key: file, subState: data }))
 	try {
-		store.dispatch(setField({ key: file, subState: data }))
 		await adapter.writeFile(file as string, data)
 		return true
 	} catch (error) {
@@ -68,19 +86,17 @@ export async function readStorageFile<
 		onCorrupt?: (error: ZodError<any>, parsed: any) => Promise<void>
 	}
 ): Promise<Schema[K] | null> {
-	const data = await (async () => {
-		try {
-			return await adapter.readFile(file as string)
-		} catch (error) {
-			return null
-		}
-	})()
-	if (data == null) return null
+	const data = await adapter.readFile(file as string)
 
 	try {
-		const parseResult = storageSchema[file].safeParse(data)
-		if (parseResult.success) return data
+		const parseResult = storageSchema[file].safeParse(data ?? undefined)
+		if (parseResult.success) return parseResult.data
 		else {
+			if (data == null) {
+				console.warn(
+					`Substate "${file}" returned but is neither optional or has a default value, try to add .default() or .optional()`
+				)
+			}
 			await options?.onCorrupt?.(parseResult.error, data)
 			return null
 		}
@@ -123,6 +139,7 @@ export function useStorage<
 		const parseResult = storageSchema[file].safeParse(data)
 		if (!parseResult.success) return false
 
+		// Create a "transaction" to revert the state if the write fails
 		const previousState = fieldValue
 		try {
 			dispatch(
