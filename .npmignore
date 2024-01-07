@@ -2,3 +2,9 @@ yarn-error.log
 example
 node_modules
 src
+
+.editorconfig
+.nvmrc
+.prettierrc.json
+.babelrc
+tsconfig.json

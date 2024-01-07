@@ -1,57 +1,69 @@
+import "./utils/use_storage"
+import { StorageProvider, useStorage } from "@hampfh/use-storage"
 import { Button, StyleSheet, Text, View } from "react-native"
-import {
-	StorageProvider,
-	clearStorageFile,
-	readStorageFile,
-	useStorage,
-	writeStorageFile
-} from "@hampfh/use-storage"
-import React from "react"
-
-import "./utils/storage_schema"
 
 function Component() {
-	const { value, write } = useStorage("file")
+	const { initialized, value, merge, clear } = useStorage("file")
 
-	async function test() {
-		await write({
-			clickCount: 1,
-			version: "1"
-		})
-	}
-
-	async function test2() {
-		await clearStorageFile("file")
-		const file1 = await readStorageFile("file")
-		console.log(file1?.clickCount)
-		const file2 = await readStorageFile("file2")
-		await writeStorageFile("file", {
-			clickCount: 2,
-			version: ""
-		})
-		console.log(file2?.world)
-	}
+	if (!initialized) return <Text>Loading...</Text>
 
 	return (
 		<View>
-			<Text>{value.clickCount}</Text>
-			<Button title="Increment" onPress={test} />
+			{value != null && <Text>{JSON.stringify(value)}</Text>}
+			<View
+				style={{
+					flexDirection: "row"
+				}}
+			>
+				<Button
+					title="Increment"
+					onPress={async () =>
+						await merge({
+							size: (value?.size ?? 0) + 1
+						})
+					}
+				/>
+				<Button
+					title="Decrement"
+					onPress={async () =>
+						await merge({
+							size: (value?.size ?? 0) - 1
+						})
+					}
+				/>
+				<Button title="Reset" onPress={async () => await clear()} />
+			</View>
+			<View
+				style={{
+					marginTop: 20,
+					flexDirection: "row"
+				}}
+			>
+				<Button
+					title="Admin"
+					onPress={async () =>
+						await merge({
+							type: "Admin"
+						})
+					}
+				/>
+				<Button
+					title="User"
+					onPress={async () =>
+						await merge({
+							type: "User"
+						})
+					}
+				/>
+			</View>
 		</View>
 	)
 }
 
 export default function App() {
-	return null
 	return (
 		<StorageProvider>
 			<View style={styles.container}>
-				<Text
-					style={{
-						color: "black"
-					}}
-				>
-					Test application
-				</Text>
 				<Component />
 			</View>
 		</StorageProvider>
