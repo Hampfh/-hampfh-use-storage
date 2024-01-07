@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { selectPersistedField } from "./store/persistent_selectors"
 import { useDispatch, useSelector } from "react-redux"
 import { setField } from "./store/persistent_slice"
@@ -17,18 +17,10 @@ export async function clearStorageFile(file: keyof RegisteredStorage) {
 	// Create a "transaction" to revert the state if the write fails
 	const previousState = store.getState().persisted[file]
 
-	const parsedState = storageSchema[file].safeParse(undefined)
-
-	if (parsedState.success === false) {
-		console.warn(
-			`Substate "${file}" cleared but is neither optional or has a default value, try to add .default() or .optional()`
-		)
-	}
-
 	store.dispatch(
 		setField({
 			key: file,
-			subState: !parsedState.success ? undefined : parsedState.data
+			subState: undefined
 		})
 	)
 	try {
@@ -115,13 +107,15 @@ export function useStorage<
 	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
 >(file: Key) {
-	const [initialized, setInitialized] = React.useState(false)
 	const dispatch = useDispatch()
+
+	const [initialized, setInitialized] = useState(false)
+	const [refreshCounter, setRefreshCounter] = useState(0)
 	const fieldValue = useSelector(state =>
 		selectPersistedField(state, file as string)
 	)
 
-	React.useEffect(() => {
+	useEffect(() => {
 		readStorageFile(file)
 			.then(parsed => {
 				if (parsed == null) return
@@ -133,29 +127,7 @@ export function useStorage<
 				)
 			})
 			.finally(() => setInitialized(true))
-	}, [])
-
-	async function write(data: Schema[Key]) {
-		const parseResult = storageSchema[file].safeParse(data)
-		if (!parseResult.success) return false
-
-		// Create a "transaction" to revert the state if the write fails
-		const previousState = fieldValue
-		try {
-			dispatch(
-				setField({
-					key: file,
-					subState: data as RegisteredStorage[Key]
-				})
-			)
-			await adapter.writeFile(file as string, data)
-
-			return true
-		} catch (error) {
-			dispatch(setField({ key: file, subState: previousState }))
-			return false
-		}
-	}
+	}, [refreshCounter])
 
 	// If value is null, use the default value if it exists
 	let value = fieldValue
@@ -165,26 +137,49 @@ export function useStorage<
 	}
 
 	return {
+		/**
+		 * Value is the reactive representation of the persistent state, it is continuously
+		 * synced with the persistent storage
+		 */
 		value: value as Schema[Key],
+		/**
+		 * A boolean value indicating whether the persistent storage has been loaded,
+		 * while initialization is in progress, the value will either be the default
+		 * value if that is provided or null
+		 */
 		initialized: initialized,
-		valid: (data: any): data is Schema[Key] => {
-			const result = storageSchema[file].safeParse(data)
-			if (result.success) return true
-			return false
-		},
-		clear: async () => {
-			dispatch(
-				setField({
-					key: file,
-					subState: undefined
-				})
-			)
-			clearStorageFile(file as string)
-		},
-		write,
+		/**
+		 * Validate input data against the specified schema, if data is successfully
+		 * passed through this function it is safe to write to file
+		 * @param data Any json serializable data
+		 * @returns Boolean indicating whether the input data matches the specified schema
+		 */
+		valid: (data: any): data is Schema[Key] =>
+			storageSchema[file].safeParse(data).success,
+		/**
+		 * Read state from storage again and overwrite reactive state, this is useful
+		 * if the persistent storage is modified by another process and the reactive
+		 * state has to be notified about the change
+		 */
+		refresh: () => setRefreshCounter(refreshCounter + 1),
+		/**
+		 * Clear the substate from the persistent storage, value will either
+		 * be the default value if provided, else null
+		 */
+		clear: async () => await clearStorageFile(file as string),
+		/**
+		 * Write to an entire substate, this will overwrite the entire state
+		 * @param data The new substate to write to the persistent storage, must match the specified schema
+		 */
+		write: async () => await writeStorageFile(file, fieldValue),
+		/**
+		 * Merge new fields into the substate, this will only update the specified fields, everything else will be left as is
+		 * @param updatedFields A partial object of the substate to update, this will merge the new fields with the existing substate
+		 * @returns
+		 */
 		merge: async (updatedFields: Partial<Schema[keyof Schema]>) => {
 			if (updatedFields == null) return
-			return await write({
+			return await writeStorageFile(file, {
 				...fieldValue,
 				...updatedFields
 			} as Schema[Key])
