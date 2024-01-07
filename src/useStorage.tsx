@@ -157,8 +157,15 @@ export function useStorage<
 		}
 	}
 
+	// If value is null, use the default value if it exists
+	let value = fieldValue
+	if (fieldValue == null) {
+		const defaultValue = storageSchema[file].safeParse(undefined)
+		if (defaultValue.success) value = defaultValue.data
+	}
+
 	return {
-		value: fieldValue as Schema[Key],
+		value,
 		initialized: initialized,
 		valid: (data: any): data is Schema[Key] => {
 			const result = storageSchema[file].safeParse(data)
