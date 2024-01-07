@@ -13,6 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/Hampfh/use-storage.git"
   },
+  "homepage": "https://tsdocs.dev/search/docs/@hampfh/use-storage",
   "bugs": {
     "email": "hampus@hallkvi.st",
     "url": "https://github.com/Hampfh/use-storage/issues"
