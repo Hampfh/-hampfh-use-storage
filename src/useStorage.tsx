@@ -165,7 +165,7 @@ export function useStorage<
 	}
 
 	return {
-		value,
+		value: value as Schema[Key],
 		initialized: initialized,
 		valid: (data: any): data is Schema[Key] => {
 			const result = storageSchema[file].safeParse(data)
