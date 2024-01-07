@@ -21,7 +21,7 @@ Store fully typed reactive persistent state in react native. useStorage wraps bo
 ### Install peer dependencies
 
 ```
-yarn install @react-native-async-storage/async-storage zod redux @reduxjs/toolkit
+yarn add @react-native-async-storage/async-storage zod redux @reduxjs/toolkit
 ```
 
 Define your persistent files at the beginning of your app and wrap the application in the provider
