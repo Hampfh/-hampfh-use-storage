@@ -14,7 +14,10 @@ const schema = {
 
 Storage({
 	schema,
-	adapter: new LocalStorageAdapter()
+	adapter: new LocalStorageAdapter({
+		base64: true,
+		keyPrefix: "some_prefix_"
+	})
 })
 
 declare module "@hampfh/use-storage" {
@@ -24,20 +27,20 @@ declare module "@hampfh/use-storage" {
 }
 
 function App() {
-	const { value, merge } = useStorage("file")
-	console.log(value)
+	const { value, merge, clear } = useStorage("file")
 
 	return (
 		<div className="card">
 			<button
 				onClick={async () =>
 					await merge({
-						count: (value?.count ?? 0) + 1
+						count: value.count + 1
 					})
 				}
 			>
-				count is {value?.count}
+				count is {value.count}
 			</button>
+			<button onClick={() => clear()}>Clear data</button>
 		</div>
 	)
 }

@@ -1177,9 +1177,9 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.56.0.tgz#ef20350fec605a7f7035a01764731b2de0f3782b"
   integrity sha512-gMsVel9D7f2HLkBma9VbtzZRehRogVRfbr++f06nL2vnCGCNlzOD+/MUov/F4p8myyAHspEhVobgjpX64q5m6A==
 
-"@hampfh/use-storage@file:./1704624394.tgz":
+"@hampfh/use-storage@file:./1704625794.tgz":
   version "1.0.2"
-  resolved "file:./1704624394.tgz#be3d4a0932c00bf20a891dfdb0d82f0eec914282"
+  resolved "file:./1704625794.tgz#4d98bb4f88df0a781e92e5555efee94271fcc2ed"
   dependencies:
     "@babel/cli" "^7.14.8"
     "@babel/core" "^7.15.0"

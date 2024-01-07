@@ -5,6 +5,12 @@
   text-align: center;
 }
 
+.card {
+	display: flex;
+	flex-direction: row;
+	column-gap: 1em;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
