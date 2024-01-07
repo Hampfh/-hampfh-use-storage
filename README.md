@@ -1,6 +1,6 @@
 # useStorage
 
-Store fully typed reactive persistent state in react native. useStorage wraps both async storage and redux toolkit allowing the benefits of reactivness and persistency at the same time.
+Store fully typed reactive persistent state, supports both react & react native. useStorage wraps both async storage and redux toolkit allowing the benefits of reactivness and persistency at the same time.
 
 - [⚙️ Setup](#setup)
   - [Install peer dependencies](#install-peer-dependencies)
@@ -21,7 +21,7 @@ Store fully typed reactive persistent state in react native. useStorage wraps bo
 ### Install peer dependencies
 
 ```
-yarn add @react-native-async-storage/async-storage zod redux @reduxjs/toolkit
+yarn add zod redux @reduxjs/toolkit
 ```
 
 Define your persistent files at the beginning of your app and wrap the application in the provider
@@ -35,13 +35,15 @@ const schema = {
   file: z.object({
     version: z.string(),
     clickCount: z.number()
+  }).default({
+    version: "1.0.0",
+    clickCount: 0
   })
   file2: // other file schema ...
 }
 
 Storage({
-  schema,
-  storage: AsyncStorage // Pass in storage solution
+  schema
 })
 
 declare module "@hampfh/use-storage" {
@@ -125,6 +127,17 @@ function Component() {
 
 ## API
 
+### Storage
+
+The storage function is used to initialize the library and all typings. Call this function at the beginning of your app.
+
+```ts
+Storage({
+  schema: Record<string, z.ZodObject>,
+  adapter: StorageAdapter
+})
+```
+
 ### useStorage hook
 
 ```tsx
@@ -162,3 +175,40 @@ clearStorageFile(file: string): Promise<void>
 ### StorageProvider
 
 Provider component for useStorage, must be wrapped around the entire app.
+
+## Adapters
+
+Adapters are provide the logic for reading and writing to storeage. Any new adapter can easily be added by implementing the interface. As of now there are three adapters, one for react native, react and the a BaseAdapter. The BaseAdapter is used unless anything else is provided. The BaseAdapter is **NOT** suited for production and won't persist state.
+
+### AsyncStorage (react native)
+
+#### Peer dependency
+
+To use this adapter install the async storage library for react native
+
+```
+yarn add @react-native-async-storage/async-storage
+```
+
+```ts
+import { AsyncStorageAdapter } from "@hampfh/use-storage"
+
+Storage({
+  schema,
+  adapter: new AsyncStorageAdapter()
+})
+```
+
+### LocalStorageAdapter (web)
+
+```ts
+import { LocalStorageAdapter } from "@hampfh/use-storage"
+
+Storage({
+  schema,
+  adapter: new LocalStorageAdapter({
+    prefix?: string // Prefix each key with the provided string
+    base64?: boolean // Encode values when writing to local storage
+  })
+})
+```
