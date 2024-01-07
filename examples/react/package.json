@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hampfh/use-storage": "file:./1704625794.tgz",
+    "@hampfh/use-storage": "file:./1704630398.tgz",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

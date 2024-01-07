@@ -16,7 +16,7 @@ Storage({
 	schema,
 	adapter: new LocalStorageAdapter({
 		base64: true,
-		keyPrefix: "some_prefix_"
+		prefix: "some_prefix_"
 	})
 })
 
