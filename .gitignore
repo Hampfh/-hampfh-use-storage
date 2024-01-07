@@ -1,5 +1,7 @@
+/*.js
+lib
+
 yarn-error.log
 
-.next
 node_modules
 out
