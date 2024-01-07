@@ -10,11 +10,15 @@ Store fully typed reactive persistent state, supports both react & react native.
   - [Write value](#write-value)
   - [Action on load](#action-on-load)
 - [📚 API](#api)
+  - [Storage](#storage)
   - [useStorage](#usestorage-hook)
   - [readStorageFile](#readstoragefile)
   - [writeStorageFile](#writestoragefile)
   - [clearStorageFile](#clearstoragefile)
   - [StorageProvider](#storageprovider)
+- [🔌 Adapters](#adapters)
+  - [AsyncStorage (react native)](#asyncstorage-react-native)
+  - [LocalStorageAdapter (web)](#localstorageadapter-web)
 
 ## Setup
 
