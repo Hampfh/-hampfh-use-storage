@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hampfh/use-storage": "file:./1704630398.tgz",
+    "@hampfh/use-storage": "file:./1704740527.tgz",
+    "@reduxjs/toolkit": "^2.0.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.0.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
