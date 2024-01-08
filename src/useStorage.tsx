@@ -171,7 +171,8 @@ export function useStorage<
 		 * Write to an entire substate, this will overwrite the entire state
 		 * @param data The new substate to write to the persistent storage, must match the specified schema
 		 */
-		write: async () => await writeStorageFile(file, fieldValue),
+		write: async (state: Schema[Key]) =>
+			await writeStorageFile(file, state),
 		/**
 		 * Merge new fields into the substate, this will only update the specified fields, everything else will be left as is
 		 * @param updatedFields A partial object of the substate to update, this will merge the new fields with the existing substate
