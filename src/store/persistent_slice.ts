@@ -1,10 +1,11 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { RegisteredStorage } from "../types"
 import { InferredStore } from "../provider"
+
 const initialState = {} as InferredStore<RegisteredStorage>
 
 const persistentSlice = createSlice({
-	name: "account",
+	name: "persisted",
 	initialState,
 	reducers: {
 		setField: (

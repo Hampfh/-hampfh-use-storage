@@ -48,17 +48,17 @@
     "metro-react-native-babel-preset": "^0.77.0",
     "react": "^18.2.0",
     "react-native": "0.72.6",
-    "react-redux": "^9.0.4",
-    "redux": "^5.0.1",
     "zod": "^3.22.4"
   },
   "peerDependencies": {
     "@react-native-async-storage/async-storage": "^1",
     "@reduxjs/toolkit": "^2",
     "react": "^17 || ^18",
-    "react-native": "^0.71 || ^0.72 || 0.73",
-    "redux": "^5",
-    "zod": "^3",
-    "react-redux": "^7 || ^8 || ^9"
+    "zod": "^3"
+  },
+  "peerDependenciesMeta": {
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    }
   }
 }

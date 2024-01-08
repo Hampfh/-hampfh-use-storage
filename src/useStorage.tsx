@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { selectPersistedField } from "./store/persistent_selectors"
-import { useDispatch, useSelector } from "react-redux"
 import { setField } from "./store/persistent_slice"
 import { RegisteredStorage } from "./types"
 import { InferredStore } from "./provider"
@@ -107,19 +106,15 @@ export function useStorage<
 	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
 >(file: Key) {
-	const dispatch = useDispatch()
-
 	const [initialized, setInitialized] = useState(false)
 	const [refreshCounter, setRefreshCounter] = useState(0)
-	const fieldValue = useSelector(state =>
-		selectPersistedField(state, file as string)
-	)
+	const [state, setState] = useState<Schema[Key]>()
 
 	useEffect(() => {
 		readStorageFile(file)
 			.then(parsed => {
 				if (parsed == null) return
-				dispatch(
+				store.dispatch(
 					setField({
 						key: file,
 						subState: parsed
@@ -129,9 +124,19 @@ export function useStorage<
 			.finally(() => setInitialized(true))
 	}, [refreshCounter])
 
+	useEffect(() => {
+		const unsubscribe = store.subscribe(() => {
+			const state = store.getState()
+			const value = selectPersistedField(state, file as string)
+			if (value !== state) setState(state.persisted[file])
+		})
+
+		return () => unsubscribe()
+	}, [])
+
 	// If value is null, use the default value if it exists
-	let value = fieldValue
-	if (fieldValue == null) {
+	let value = state
+	if (state == null) {
 		const defaultValue = storageSchema[file].safeParse(undefined)
 		if (defaultValue.success) value = defaultValue.data
 	}
@@ -181,7 +186,7 @@ export function useStorage<
 		merge: async (updatedFields: Partial<Schema[keyof Schema]>) => {
 			if (updatedFields == null) return
 			return await writeStorageFile(file, {
-				...fieldValue,
+				...state,
 				...updatedFields
 			} as Schema[Key])
 		}
