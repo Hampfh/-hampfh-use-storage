@@ -25,7 +25,7 @@ Store fully typed reactive persistent state, supports both react & react native.
 ### Install peer dependencies
 
 ```
-yarn add zod redux @reduxjs/toolkit
+yarn add react-redux zod redux @reduxjs/toolkit
 ```
 
 Define your persistent files at the beginning of your app and wrap the application in the provider

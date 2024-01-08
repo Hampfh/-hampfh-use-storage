@@ -37,7 +37,6 @@
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
-    "react-redux": "^9.0.4",
     "reselect": "^5.0.1",
     "typescript": "^5.3.3"
   },
@@ -49,6 +48,7 @@
     "metro-react-native-babel-preset": "^0.77.0",
     "react": "^18.2.0",
     "react-native": "0.72.6",
+    "react-redux": "^9.0.4",
     "redux": "^5.0.1",
     "zod": "^3.22.4"
   },
@@ -58,6 +58,7 @@
     "react": "^17 || ^18",
     "react-native": "^0.71 || ^0.72 || 0.73",
     "redux": "^5",
-    "zod": "^3"
+    "zod": "^3",
+    "react-redux": "^7 || ^8 || ^9"
   }
 }
