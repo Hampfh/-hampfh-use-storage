@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
-import { selectPersistedField } from "./store/persistent_selectors"
-import { setField } from "./store/persistent_slice"
-import { RegisteredStorage } from "./types"
+import { ZodError } from "zod"
 import { InferredStore } from "./provider"
 import { adapter, storageSchema } from "./register"
-import { ZodError } from "zod"
-import store from "./store/store"
+import { selectPersistedField } from "./store/persistent_selectors"
+import { setField } from "./store/persistent_slice"
+import store, { RootState } from "./store/store"
+import { RegisteredStorage } from "./types"
 
 /**
  * Asyncronously clears a substate from the persistent storage
@@ -43,9 +43,8 @@ export async function writeStorageFile<
 	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
 >(file: Key, data: Schema[Key]) {
-	const parseResult = storageSchema[file].safeParse(data)
-	if (!parseResult.success)
-		throw new Error("Could not write to substate due to unsynced schema")
+	// Check that the data is valid
+	storageSchema[file].parse(data)
 
 	// Create a "transaction" to revert the state if the write fails
 	const previousState = store.getState().persisted[file]
@@ -97,6 +96,9 @@ export async function readStorageFile<
 	return null
 }
 
+let STATE_READ = false
+let STATE_LOCKED = false
+
 /**
  * A hook for interacting with the persistent storage within the context of react
  * @param file A key of the specified schmea type, specifying which substate to clear
@@ -111,8 +113,11 @@ export function useStorage<
 	const [state, setState] = useState<Schema[Key]>()
 
 	useEffect(() => {
-		readStorageFile(file)
-			.then(parsed => {
+		if (!STATE_READ && !STATE_LOCKED) {
+			STATE_LOCKED = true
+			readStorageFile(file).then(parsed => {
+				setInitialized(true)
+				STATE_READ = true
 				if (parsed == null) return
 				store.dispatch(
 					setField({
@@ -121,14 +126,31 @@ export function useStorage<
 					})
 				)
 			})
-			.finally(() => setInitialized(true))
+		} else {
+			// Load state from store
+			// If state is not read yet, it means it is an ongoing process,
+			// in which case it will be handled by the subscription
+			const state = store.getState() as RootState
+			const substate = selectPersistedField(state, file as string)
+			if (!initialized) setInitialized(true)
+			setState(substate)
+		}
+		// State has not been loaded yet, read from storage
 	}, [refreshCounter])
 
 	useEffect(() => {
 		const unsubscribe = store.subscribe(() => {
-			const state = store.getState()
-			const value = selectPersistedField(state, file as string)
-			if (value !== state) setState(state.persisted[file])
+			// Never assign anything unless base state has been read
+			if (!STATE_READ) return
+
+			const state = store.getState() as RootState
+
+			// Check if substate has updated
+			const substate = selectPersistedField(state, file as string)
+			if (value !== state) {
+				if (!initialized) setInitialized(true)
+				setState(substate)
+			}
 		})
 
 		return () => unsubscribe()
@@ -185,8 +207,20 @@ export function useStorage<
 		 */
 		merge: async (updatedFields: Partial<Schema[keyof Schema]>) => {
 			if (updatedFields == null) return
+
+			function getStateOrDefault() {
+				if (state == null) {
+					const oldStateResult =
+						storageSchema[file].safeParse(undefined)
+					return oldStateResult.success
+						? oldStateResult.data
+						: undefined
+				}
+				return state
+			}
+
 			return await writeStorageFile(file, {
-				...state,
+				...getStateOrDefault(),
 				...updatedFields
 			} as Schema[Key])
 		}

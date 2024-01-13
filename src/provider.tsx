@@ -1,9 +1,9 @@
-import "./store/store" // Initialize redux store
 import React from "react"
 import { z } from "zod"
-import { RegisteredStorage } from "./types"
-import { setStorageSchema } from "./register"
 import { BaseAdapter, StorageAdapter } from "./adapters"
+import { setStorageSchema } from "./register"
+import "./store/store" // Initialize redux store
+import { RegisteredStorage } from "./types"
 
 export type InferredStore<T extends RegisteredStorage> = {
 	[K in keyof T]: z.infer<T[K]>

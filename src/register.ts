@@ -1,5 +1,5 @@
-import { RegisteredStorage } from "./types"
 import { StorageAdapter } from "./adapters"
+import { RegisteredStorage } from "./types"
 
 export let storageSchema = {} as RegisteredStorage
 export let adapter = null as unknown as StorageAdapter

@@ -1,6 +1,7 @@
-import "./utils/use_storage"
-import { StorageProvider, useStorage } from "@hampfh/use-storage"
+import { useStorage } from "@hampfh/use-storage"
 import { Button, StyleSheet, Text, View } from "react-native"
+import { Child } from "./Child"
+import "./utils/use_storage"
 
 function Component() {
 	const { initialized, value, merge, clear } = useStorage("file")
@@ -56,17 +57,28 @@ function Component() {
 					}
 				/>
 			</View>
+			<View
+				style={{
+					padding: 10,
+					flexDirection: "row",
+					flexWrap: "wrap"
+				}}
+			>
+				{Array(100)
+					.fill(0)
+					.map((_, i) => (
+						<Child key={i} index={i} />
+					))}
+			</View>
 		</View>
 	)
 }
 
 export default function App() {
 	return (
-		<StorageProvider>
-			<View style={styles.container}>
-				<Component />
-			</View>
-		</StorageProvider>
+		<View style={styles.container}>
+			<Component />
+		</View>
 	)
 }
 

@@ -1,8 +1,9 @@
-import "./App.css"
-import { z } from "zod"
 import { LocalStorageAdapter, Storage, useStorage } from "@hampfh/use-storage"
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { z } from "zod"
+import "./App.css"
+import { Child } from "./Child"
 import { RootState, increment, reset } from "./store"
 /* import { useSelector } from "react-redux"
 import { RootState } from "./store" */
@@ -68,6 +69,12 @@ function App() {
 				</button>
 				<button onClick={() => clear()}>reset</button>
 			</div>
+
+			{Array(100)
+				.fill(0)
+				.map((_, i) => (
+					<Child index={i} />
+				))}
 		</div>
 	)
 }
