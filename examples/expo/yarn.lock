@@ -1644,9 +1644,9 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hampfh/use-storage@file:./1705175850.tgz":
-  version "1.1.9"
-  resolved "file:./1705175850.tgz#f8d96f810d2ecaa7f7cec9917e88aabd213e7fff"
+"@hampfh/use-storage@file:./1705177662.tgz":
+  version "1.1.10"
+  resolved "file:./1705177662.tgz#347138d3ef47fd0b618700a59757b8f4b4e3dbf3"
   dependencies:
     "@babel/cli" "^7.14.8"
     "@babel/core" "^7.15.0"

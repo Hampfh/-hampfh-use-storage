@@ -98,6 +98,25 @@ export async function readStorageFile<
 
 let STATE_READ = false
 let STATE_LOCKED = false
+/**
+ * A map of timers, one for each substate, used to check if
+ * the state has been read from storage. And if not, read it
+ * again and fix potential issues
+ */
+let READ_STATE_TIMEOUT_TIMER: Record<string, NodeJS.Timeout | null> = {}
+
+async function loadStateFromFile(file: keyof RegisteredStorage) {
+	const parsed = await readStorageFile(file)
+	STATE_READ = true
+	if (parsed == null) return false
+	store.dispatch(
+		setField({
+			key: file,
+			subState: parsed
+		})
+	)
+	return true
+}
 
 /**
  * A hook for interacting with the persistent storage within the context of react
@@ -113,29 +132,49 @@ export function useStorage<
 	const [state, setState] = useState<Schema[Key]>()
 
 	useEffect(() => {
+		// First time the hook is called, read from storage
 		if (!STATE_READ && !STATE_LOCKED) {
 			STATE_LOCKED = true
-			readStorageFile(file).then(parsed => {
-				setInitialized(true)
-				STATE_READ = true
-				if (parsed == null) return
-				store.dispatch(
-					setField({
-						key: file,
-						subState: parsed
-					})
-				)
-			})
+			loadStateFromFile(file).then(success => setInitialized(success))
+		} else if (STATE_READ) {
+			handleAttemptLoadState()
 		} else {
-			// Load state from store
-			// If state is not read yet, it means it is an ongoing process,
-			// in which case it will be handled by the subscription
-			const state = store.getState() as RootState
-			const substate = selectPersistedField(state, file as string)
-			if (!initialized) setInitialized(true)
-			setState(substate)
+			/**
+			 * If state is locked but not read then we have to check
+			 * on an interval to make sure that it doesn't get stuck.
+			 * This is a failsafe if the component that initializes the
+			 * read from storage is unmounted before the read is complete
+			 * or any other reason that the read fails to complete.
+			 */
+
+			const timeout = 250
+			const interval = async () => {
+				if (STATE_READ) {
+					// Happy path, everything is fine and state is loaded, uninstall the timer
+					if (READ_STATE_TIMEOUT_TIMER[file])
+						clearTimeout(READ_STATE_TIMEOUT_TIMER[file]!)
+					READ_STATE_TIMEOUT_TIMER[file] = null
+					return
+				}
+
+				// Attempt to load state from storage
+				await loadStateFromFile(file)
+
+				// Reschedule attempt
+				if (READ_STATE_TIMEOUT_TIMER[file])
+					clearTimeout(READ_STATE_TIMEOUT_TIMER[file]!)
+				READ_STATE_TIMEOUT_TIMER[file] = setTimeout(interval, timeout)
+			}
+
+			// Initiate global interval to check for state loading
+			// There can only be one interval per file
+			if (READ_STATE_TIMEOUT_TIMER[file] == null) {
+				READ_STATE_TIMEOUT_TIMER[file] = setTimeout(
+					() => interval(),
+					timeout
+				)
+			}
 		}
-		// State has not been loaded yet, read from storage
 	}, [refreshCounter])
 
 	useEffect(() => {
@@ -143,18 +182,20 @@ export function useStorage<
 			// Never assign anything unless base state has been read
 			if (!STATE_READ) return
 
-			const state = store.getState() as RootState
-
-			// Check if substate has updated
-			const substate = selectPersistedField(state, file as string)
-			if (value !== state) {
-				if (!initialized) setInitialized(true)
-				setState(substate)
-			}
+			handleAttemptLoadState()
 		})
 
 		return () => unsubscribe()
 	}, [])
+
+	function handleAttemptLoadState() {
+		const state = store.getState() as RootState
+		const substate = selectPersistedField(state, file as string)
+		if (value !== state) {
+			if (!initialized) setInitialized(true)
+			setState(substate)
+		}
+	}
 
 	// If value is null, use the default value if it exists
 	let value = state
@@ -188,7 +229,13 @@ export function useStorage<
 		 * if the persistent storage is modified by another process and the reactive
 		 * state has to be notified about the change
 		 */
-		refresh: () => setRefreshCounter(refreshCounter + 1),
+		refresh: () => {
+			// Allow refresh to be called again
+			STATE_LOCKED = false
+			STATE_READ = false
+
+			setRefreshCounter(refreshCounter + 1)
+		},
 		/**
 		 * Clear the substate from the persistent storage, value will either
 		 * be the default value if provided, else null
@@ -208,6 +255,10 @@ export function useStorage<
 		merge: async (updatedFields: Partial<Schema[keyof Schema]>) => {
 			if (updatedFields == null) return
 
+			/**
+			 * For those substates that support a default value,
+			 * use that together with the partial new state
+			 */
 			function getStateOrDefault() {
 				if (state == null) {
 					const oldStateResult =
