@@ -25,12 +25,14 @@ Store fully typed reactive persistent state, supports both react & react native.
 ### Install peer dependencies
 
 ```
-yarn add react-redux zod redux @reduxjs/toolkit
+yarn add zod @reduxjs/toolkit
 ```
 
 Define your persistent files at the beginning of your app and wrap the application in the provider
 
 ### Initialize storage
+
+Make sure that wherever you declare this, it is imported in your entrypoint.
 
 ```tsx
 import { Storage, StorageProvider } from "@hampfh/use-storage"
@@ -54,14 +56,6 @@ declare module "@hampfh/use-storage" {
   interface Register {
     schema: typeof schema
   }
-}
-
-export default function App() {
-  return (
-    <StorageProvider>
-      // ... rest of your app
-    </StorageProvider>
-  )
 }
 ```
 
