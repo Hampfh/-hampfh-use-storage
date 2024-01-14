@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react"
-import { selectPersistedField } from "./store/persistent_selectors"
-import { useDispatch, useSelector } from "react-redux"
-import { setField } from "./store/persistent_slice"
-import { RegisteredStorage } from "./types"
+import { useEffect, useState } from "react"
+import { ZodError } from "zod"
 import { InferredStore } from "./provider"
 import { adapter, storageSchema } from "./register"
-import { ZodError } from "zod"
-import store from "./store/store"
+import { selectPersistedField } from "./store/persistent_selectors"
+import { setField } from "./store/persistent_slice"
+import store, { RootState } from "./store/store"
+import { RegisteredStorage } from "./types"
 
 /**
  * Asyncronously clears a substate from the persistent storage
@@ -44,9 +43,8 @@ export async function writeStorageFile<
 	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
 >(file: Key, data: Schema[Key]) {
-	const parseResult = storageSchema[file].safeParse(data)
-	if (!parseResult.success)
-		throw new Error("Could not write to substate due to unsynced schema")
+	// Check that the data is valid
+	storageSchema[file].parse(data)
 
 	// Create a "transaction" to revert the state if the write fails
 	const previousState = store.getState().persisted[file]
@@ -98,6 +96,28 @@ export async function readStorageFile<
 	return null
 }
 
+let STATE_READ = false
+let STATE_LOCKED = false
+/**
+ * A map of timers, one for each substate, used to check if
+ * the state has been read from storage. And if not, read it
+ * again and fix potential issues
+ */
+let READ_STATE_TIMEOUT_TIMER: Record<string, NodeJS.Timeout | null> = {}
+
+async function loadStateFromFile(file: keyof RegisteredStorage) {
+	const parsed = await readStorageFile(file)
+	STATE_READ = true
+	if (parsed == null) return false
+	store.dispatch(
+		setField({
+			key: file,
+			subState: parsed
+		})
+	)
+	return true
+}
+
 /**
  * A hook for interacting with the persistent storage within the context of react
  * @param file A key of the specified schmea type, specifying which substate to clear
@@ -107,31 +127,79 @@ export function useStorage<
 	Schema extends InferredStore<RegisteredStorage>,
 	Key extends keyof Schema & string
 >(file: Key) {
-	const dispatch = useDispatch()
-
 	const [initialized, setInitialized] = useState(false)
 	const [refreshCounter, setRefreshCounter] = useState(0)
-	const fieldValue = useSelector(state =>
-		selectPersistedField(state, file as string)
-	)
+	const [state, setState] = useState<Schema[Key]>()
 
 	useEffect(() => {
-		readStorageFile(file)
-			.then(parsed => {
-				if (parsed == null) return
-				dispatch(
-					setField({
-						key: file,
-						subState: parsed
-					})
+		// First time the hook is called, read from storage
+		if (!STATE_READ && !STATE_LOCKED) {
+			STATE_LOCKED = true
+			loadStateFromFile(file).then(success => setInitialized(success))
+		} else if (STATE_READ) {
+			handleAttemptLoadState()
+		} else {
+			/**
+			 * If state is locked but not read then we have to check
+			 * on an interval to make sure that it doesn't get stuck.
+			 * This is a failsafe if the component that initializes the
+			 * read from storage is unmounted before the read is complete
+			 * or any other reason that the read fails to complete.
+			 */
+
+			const timeout = 250
+			const interval = async () => {
+				if (STATE_READ) {
+					// Happy path, everything is fine and state is loaded, uninstall the timer
+					if (READ_STATE_TIMEOUT_TIMER[file])
+						clearTimeout(READ_STATE_TIMEOUT_TIMER[file]!)
+					READ_STATE_TIMEOUT_TIMER[file] = null
+					return
+				}
+
+				// Attempt to load state from storage
+				await loadStateFromFile(file)
+
+				// Reschedule attempt
+				if (READ_STATE_TIMEOUT_TIMER[file])
+					clearTimeout(READ_STATE_TIMEOUT_TIMER[file]!)
+				READ_STATE_TIMEOUT_TIMER[file] = setTimeout(interval, timeout)
+			}
+
+			// Initiate global interval to check for state loading
+			// There can only be one interval per file
+			if (READ_STATE_TIMEOUT_TIMER[file] == null) {
+				READ_STATE_TIMEOUT_TIMER[file] = setTimeout(
+					() => interval(),
+					timeout
 				)
-			})
-			.finally(() => setInitialized(true))
+			}
+		}
 	}, [refreshCounter])
 
+	useEffect(() => {
+		const unsubscribe = store.subscribe(() => {
+			// Never assign anything unless base state has been read
+			if (!STATE_READ) return
+
+			handleAttemptLoadState()
+		})
+
+		return () => unsubscribe()
+	}, [])
+
+	function handleAttemptLoadState() {
+		const state = store.getState() as RootState
+		const substate = selectPersistedField(state, file as string)
+		if (value !== state) {
+			if (!initialized) setInitialized(true)
+			setState(substate)
+		}
+	}
+
 	// If value is null, use the default value if it exists
-	let value = fieldValue
-	if (fieldValue == null) {
+	let value = state
+	if (state == null) {
 		const defaultValue = storageSchema[file].safeParse(undefined)
 		if (defaultValue.success) value = defaultValue.data
 	}
@@ -161,7 +229,13 @@ export function useStorage<
 		 * if the persistent storage is modified by another process and the reactive
 		 * state has to be notified about the change
 		 */
-		refresh: () => setRefreshCounter(refreshCounter + 1),
+		refresh: () => {
+			// Allow refresh to be called again
+			STATE_LOCKED = false
+			STATE_READ = false
+
+			setRefreshCounter(refreshCounter + 1)
+		},
 		/**
 		 * Clear the substate from the persistent storage, value will either
 		 * be the default value if provided, else null
@@ -180,8 +254,24 @@ export function useStorage<
 		 */
 		merge: async (updatedFields: Partial<Schema[keyof Schema]>) => {
 			if (updatedFields == null) return
+
+			/**
+			 * For those substates that support a default value,
+			 * use that together with the partial new state
+			 */
+			function getStateOrDefault() {
+				if (state == null) {
+					const oldStateResult =
+						storageSchema[file].safeParse(undefined)
+					return oldStateResult.success
+						? oldStateResult.data
+						: undefined
+				}
+				return state
+			}
+
 			return await writeStorageFile(file, {
-				...fieldValue,
+				...getStateOrDefault(),
 				...updatedFields
 			} as Schema[Key])
 		}

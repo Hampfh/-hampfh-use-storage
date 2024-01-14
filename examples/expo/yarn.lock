@@ -635,6 +635,20 @@
     "@babel/helper-split-export-declaration" "^7.22.6"
     globals "^11.1.0"
 
+"@babel/plugin-transform-classes@^7.23.8":
+  version "7.23.8"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-classes/-/plugin-transform-classes-7.23.8.tgz#d08ae096c240347badd68cdf1b6d1624a6435d92"
+  integrity sha512-yAYslGsY1bX6Knmg46RjiCiNSwJKv2IUC8qOdYKqMMr0491SXFhcHqOdRDeCRohOOIzwN/90C6mQ9qAKgrP7dg==
+  dependencies:
+    "@babel/helper-annotate-as-pure" "^7.22.5"
+    "@babel/helper-compilation-targets" "^7.23.6"
+    "@babel/helper-environment-visitor" "^7.22.20"
+    "@babel/helper-function-name" "^7.23.0"
+    "@babel/helper-plugin-utils" "^7.22.5"
+    "@babel/helper-replace-supers" "^7.22.20"
+    "@babel/helper-split-export-declaration" "^7.22.6"
+    globals "^11.1.0"
+
 "@babel/plugin-transform-computed-properties@^7.0.0", "@babel/plugin-transform-computed-properties@^7.23.3":
   version "7.23.3"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-computed-properties/-/plugin-transform-computed-properties-7.23.3.tgz#652e69561fcc9d2b50ba4f7ac7f60dcf65e86474"
@@ -1029,7 +1043,93 @@
     "@babel/helper-create-regexp-features-plugin" "^7.22.15"
     "@babel/helper-plugin-utils" "^7.22.5"
 
-"@babel/preset-env@^7.15.0", "@babel/preset-env@^7.20.0":
+"@babel/preset-env@^7.15.0":
+  version "7.23.8"
+  resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.23.8.tgz#7d6f8171ea7c221ecd28059e65ad37c20e441e3e"
+  integrity sha512-lFlpmkApLkEP6woIKprO6DO60RImpatTQKtz4sUcDjVcK8M8mQ4sZsuxaTMNOZf0sqAq/ReYW1ZBHnOQwKpLWA==
+  dependencies:
+    "@babel/compat-data" "^7.23.5"
+    "@babel/helper-compilation-targets" "^7.23.6"
+    "@babel/helper-plugin-utils" "^7.22.5"
+    "@babel/helper-validator-option" "^7.23.5"
+    "@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression" "^7.23.3"
+    "@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining" "^7.23.3"
+    "@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly" "^7.23.7"
+    "@babel/plugin-proposal-private-property-in-object" "7.21.0-placeholder-for-preset-env.2"
+    "@babel/plugin-syntax-async-generators" "^7.8.4"
+    "@babel/plugin-syntax-class-properties" "^7.12.13"
+    "@babel/plugin-syntax-class-static-block" "^7.14.5"
+    "@babel/plugin-syntax-dynamic-import" "^7.8.3"
+    "@babel/plugin-syntax-export-namespace-from" "^7.8.3"
+    "@babel/plugin-syntax-import-assertions" "^7.23.3"
+    "@babel/plugin-syntax-import-attributes" "^7.23.3"
+    "@babel/plugin-syntax-import-meta" "^7.10.4"
+    "@babel/plugin-syntax-json-strings" "^7.8.3"
+    "@babel/plugin-syntax-logical-assignment-operators" "^7.10.4"
+    "@babel/plugin-syntax-nullish-coalescing-operator" "^7.8.3"
+    "@babel/plugin-syntax-numeric-separator" "^7.10.4"
+    "@babel/plugin-syntax-object-rest-spread" "^7.8.3"
+    "@babel/plugin-syntax-optional-catch-binding" "^7.8.3"
+    "@babel/plugin-syntax-optional-chaining" "^7.8.3"
+    "@babel/plugin-syntax-private-property-in-object" "^7.14.5"
+    "@babel/plugin-syntax-top-level-await" "^7.14.5"
+    "@babel/plugin-syntax-unicode-sets-regex" "^7.18.6"
+    "@babel/plugin-transform-arrow-functions" "^7.23.3"
+    "@babel/plugin-transform-async-generator-functions" "^7.23.7"
+    "@babel/plugin-transform-async-to-generator" "^7.23.3"
+    "@babel/plugin-transform-block-scoped-functions" "^7.23.3"
+    "@babel/plugin-transform-block-scoping" "^7.23.4"
+    "@babel/plugin-transform-class-properties" "^7.23.3"
+    "@babel/plugin-transform-class-static-block" "^7.23.4"
+    "@babel/plugin-transform-classes" "^7.23.8"
+    "@babel/plugin-transform-computed-properties" "^7.23.3"
+    "@babel/plugin-transform-destructuring" "^7.23.3"
+    "@babel/plugin-transform-dotall-regex" "^7.23.3"
+    "@babel/plugin-transform-duplicate-keys" "^7.23.3"
+    "@babel/plugin-transform-dynamic-import" "^7.23.4"
+    "@babel/plugin-transform-exponentiation-operator" "^7.23.3"
+    "@babel/plugin-transform-export-namespace-from" "^7.23.4"
+    "@babel/plugin-transform-for-of" "^7.23.6"
+    "@babel/plugin-transform-function-name" "^7.23.3"
+    "@babel/plugin-transform-json-strings" "^7.23.4"
+    "@babel/plugin-transform-literals" "^7.23.3"
+    "@babel/plugin-transform-logical-assignment-operators" "^7.23.4"
+    "@babel/plugin-transform-member-expression-literals" "^7.23.3"
+    "@babel/plugin-transform-modules-amd" "^7.23.3"
+    "@babel/plugin-transform-modules-commonjs" "^7.23.3"
+    "@babel/plugin-transform-modules-systemjs" "^7.23.3"
+    "@babel/plugin-transform-modules-umd" "^7.23.3"
+    "@babel/plugin-transform-named-capturing-groups-regex" "^7.22.5"
+    "@babel/plugin-transform-new-target" "^7.23.3"
+    "@babel/plugin-transform-nullish-coalescing-operator" "^7.23.4"
+    "@babel/plugin-transform-numeric-separator" "^7.23.4"
+    "@babel/plugin-transform-object-rest-spread" "^7.23.4"
+    "@babel/plugin-transform-object-super" "^7.23.3"
+    "@babel/plugin-transform-optional-catch-binding" "^7.23.4"
+    "@babel/plugin-transform-optional-chaining" "^7.23.4"
+    "@babel/plugin-transform-parameters" "^7.23.3"
+    "@babel/plugin-transform-private-methods" "^7.23.3"
+    "@babel/plugin-transform-private-property-in-object" "^7.23.4"
+    "@babel/plugin-transform-property-literals" "^7.23.3"
+    "@babel/plugin-transform-regenerator" "^7.23.3"
+    "@babel/plugin-transform-reserved-words" "^7.23.3"
+    "@babel/plugin-transform-shorthand-properties" "^7.23.3"
+    "@babel/plugin-transform-spread" "^7.23.3"
+    "@babel/plugin-transform-sticky-regex" "^7.23.3"
+    "@babel/plugin-transform-template-literals" "^7.23.3"
+    "@babel/plugin-transform-typeof-symbol" "^7.23.3"
+    "@babel/plugin-transform-unicode-escapes" "^7.23.3"
+    "@babel/plugin-transform-unicode-property-regex" "^7.23.3"
+    "@babel/plugin-transform-unicode-regex" "^7.23.3"
+    "@babel/plugin-transform-unicode-sets-regex" "^7.23.3"
+    "@babel/preset-modules" "0.1.6-no-external-plugins"
+    babel-plugin-polyfill-corejs2 "^0.4.7"
+    babel-plugin-polyfill-corejs3 "^0.8.7"
+    babel-plugin-polyfill-regenerator "^0.5.4"
+    core-js-compat "^3.31.0"
+    semver "^6.3.1"
+
+"@babel/preset-env@^7.20.0":
   version "7.23.7"
   resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.23.7.tgz#e5d69b9f14db8a13bae4d8e5ce7f360973626241"
   integrity sha512-SY27X/GtTz/L4UryMNJ6p4fH4nsgWbz84y9FE0bQeWJP6O5BhgVCt53CotQKHCOeXJel8VyhlhujhlltKms/CA==
@@ -1544,15 +1644,14 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hampfh/use-storage@file:./1704623564.tgz":
-  version "1.0.2"
-  resolved "file:./1704623564.tgz#2d28788d015d6d70403ff91382837d4da7a7daaa"
+"@hampfh/use-storage@file:./1705177662.tgz":
+  version "1.1.10"
+  resolved "file:./1705177662.tgz#347138d3ef47fd0b618700a59757b8f4b4e3dbf3"
   dependencies:
     "@babel/cli" "^7.14.8"
     "@babel/core" "^7.15.0"
     "@babel/preset-env" "^7.15.0"
     "@babel/preset-react" "^7.14.5"
-    react-redux "^9.0.4"
     reselect "^5.0.1"
     typescript "^5.3.3"
 
@@ -2062,11 +2161,6 @@
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.3.tgz#6209321eb2c1712a7e7466422b8cb1fc0d9dd5d8"
   integrity sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==
-
-"@types/use-sync-external-store@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@types/use-sync-external-store/-/use-sync-external-store-0.0.3.tgz#b6725d5f4af24ace33b36fafd295136e75509f43"
-  integrity sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==
 
 "@types/yargs-parser@*":
   version "21.0.3"
@@ -5552,14 +5646,6 @@ react-native@0.72.6:
     whatwg-fetch "^3.0.0"
     ws "^6.2.2"
     yargs "^17.6.2"
-
-react-redux@^9.0.4:
-  version "9.0.4"
-  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-9.0.4.tgz#6892d465f086507a517d4b53eb589876e6bc8344"
-  integrity sha512-9J1xh8sWO0vYq2sCxK2My/QO7MzUMRi3rpiILP/+tDr8krBHixC6JMM17fMK88+Oh3e4Ae6/sHIhNBgkUivwFA==
-  dependencies:
-    "@types/use-sync-external-store" "^0.0.3"
-    use-sync-external-store "^1.0.0"
 
 react-refresh@^0.4.0:
   version "0.4.3"

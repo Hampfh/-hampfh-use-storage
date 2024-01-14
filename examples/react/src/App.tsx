@@ -1,6 +1,12 @@
-import "./App.css"
-import { z } from "zod"
 import { LocalStorageAdapter, Storage, useStorage } from "@hampfh/use-storage"
+import { useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { z } from "zod"
+import "./App.css"
+import { Child } from "./Child"
+import { RootState, increment, reset } from "./store"
+/* import { useSelector } from "react-redux"
+import { RootState } from "./store" */
 
 const schema = {
 	file: z
@@ -9,7 +15,12 @@ const schema = {
 		})
 		.default({
 			count: 0
+		}),
+	another: z
+		.object({
+			count: z.number()
 		})
+		.default({ count: 0 })
 }
 
 Storage({
@@ -27,20 +38,43 @@ declare module "@hampfh/use-storage" {
 }
 
 function App() {
+	const dispatch = useDispatch()
 	const { value, merge, clear } = useStorage("file")
+	const { value: another } = useStorage("another")
+	const { value: count } = useSelector((state: RootState) => state.test)
+
+	useEffect(() => {
+		console.log("UPDATED ANOTHER", another)
+	}, [another])
 
 	return (
 		<div className="card">
-			<button
-				onClick={async () =>
-					await merge({
-						count: value.count + 1
-					})
-				}
-			>
-				count is {value.count}
-			</button>
-			<button onClick={() => clear()}>Clear data</button>
+			<h3>Redux</h3>
+			<div className="inline-redux">
+				<button onClick={() => dispatch(increment())}>
+					count is {count}
+				</button>
+				<button onClick={() => dispatch(reset())}>reset</button>
+			</div>
+			<h3>@hampfh/use-storage</h3>
+			<div className="inline-redux">
+				<button
+					onClick={async () =>
+						await merge({
+							count: value.count + 1
+						})
+					}
+				>
+					count is {value.count}
+				</button>
+				<button onClick={() => clear()}>reset</button>
+			</div>
+
+			{Array(100)
+				.fill(0)
+				.map((_, i) => (
+					<Child index={i} />
+				))}
 		</div>
 	)
 }
