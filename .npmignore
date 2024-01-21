@@ -8,3 +8,6 @@ src
 .prettierrc.json
 .babelrc
 tsconfig.json
+
+*.tgz
+Makefile

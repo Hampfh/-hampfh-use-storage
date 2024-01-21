@@ -5,12 +5,24 @@ import "./utils/use_storage"
 
 function Component() {
 	const { initialized, value, merge, clear } = useStorage("file")
+	const { value: auth, write } = useStorage("auth")
 
 	if (!initialized) return <Text>Loading...</Text>
 
 	return (
 		<View>
 			{value != null && <Text>{JSON.stringify(value)}</Text>}
+			{auth != null && <Text>{JSON.stringify(auth)}</Text>}
+			<Button
+				title="Set auth"
+				onPress={async () => {
+					await write({
+						name: "John Doe",
+						token: "1234",
+						userId: "1234"
+					})
+				}}
+			/>
 			<View
 				style={{
 					flexDirection: "row"

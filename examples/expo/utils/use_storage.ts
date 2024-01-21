@@ -6,9 +6,17 @@ const schema = {
 		.object({
 			name: z.string(),
 			type: z.enum(["Admin", "User"]),
-			size: z.number()
+			size: z.number(),
+			meta: z.string()
 		})
-		.default({ name: "", type: "User", size: 0 })
+		.default({ name: "", type: "User", size: 0, meta: "" }),
+	auth: z
+		.object({
+			userId: z.string(),
+			name: z.string(),
+			token: z.string()
+		})
+		.optional()
 }
 
 Storage({

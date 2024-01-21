@@ -96,8 +96,8 @@ export async function readStorageFile<
 	return null
 }
 
-let STATE_READ = false
-let STATE_LOCKED = false
+let STATE_READ: Record<string, boolean> = {}
+let STATE_LOCKED: Record<string, boolean> = {}
 /**
  * A map of timers, one for each substate, used to check if
  * the state has been read from storage. And if not, read it
@@ -107,7 +107,7 @@ let READ_STATE_TIMEOUT_TIMER: Record<string, NodeJS.Timeout | null> = {}
 
 async function loadStateFromFile(file: keyof RegisteredStorage) {
 	const parsed = await readStorageFile(file)
-	STATE_READ = true
+	STATE_READ[file] = true
 	if (parsed == null) return false
 	store.dispatch(
 		setField({
@@ -133,10 +133,10 @@ export function useStorage<
 
 	useEffect(() => {
 		// First time the hook is called, read from storage
-		if (!STATE_READ && !STATE_LOCKED) {
-			STATE_LOCKED = true
+		if (!STATE_READ[file] && !STATE_LOCKED[file]) {
+			STATE_LOCKED[file] = true
 			loadStateFromFile(file).then(success => setInitialized(success))
-		} else if (STATE_READ) {
+		} else if (STATE_READ[file]) {
 			handleAttemptLoadState()
 		} else {
 			/**
@@ -149,7 +149,7 @@ export function useStorage<
 
 			const timeout = 250
 			const interval = async () => {
-				if (STATE_READ) {
+				if (STATE_READ[file]) {
 					// Happy path, everything is fine and state is loaded, uninstall the timer
 					if (READ_STATE_TIMEOUT_TIMER[file])
 						clearTimeout(READ_STATE_TIMEOUT_TIMER[file]!)
@@ -180,7 +180,7 @@ export function useStorage<
 	useEffect(() => {
 		const unsubscribe = store.subscribe(() => {
 			// Never assign anything unless base state has been read
-			if (!STATE_READ) return
+			if (!STATE_READ[file]) return
 
 			handleAttemptLoadState()
 		})
@@ -231,8 +231,8 @@ export function useStorage<
 		 */
 		refresh: () => {
 			// Allow refresh to be called again
-			STATE_LOCKED = false
-			STATE_READ = false
+			STATE_LOCKED[file] = false
+			STATE_READ[file] = false
 
 			setRefreshCounter(refreshCounter + 1)
 		},
