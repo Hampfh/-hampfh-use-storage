@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
-import { beforeAll, describe, expect, it } from "vitest"
 import { Storage } from "@/provider"
-import { z } from "zod"
 import { writeStorageFile } from "@/useStorage"
+import { beforeAll, describe, expect, it } from "vitest"
+import { z } from "zod"
 
 const schema = {
 	main: z.object({

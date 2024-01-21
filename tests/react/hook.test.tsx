@@ -1,8 +1,7 @@
 // @vitest-environment jsdom
 
-import { screen } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
-import { render } from "./util"
+import { render, screen } from "@testing-library/react"
+import { expect, it } from "vitest"
 
 function Component() {
 	return (
