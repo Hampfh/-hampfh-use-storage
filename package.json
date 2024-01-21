@@ -47,6 +47,7 @@
     "@reduxjs/toolkit": "^2.0.1",
     "@testing-library/react": "^14.1.2",
     "@types/react": "^18.2.45",
+    "@vitest/coverage-v8": "^1.2.1",
     "jsdom": "^24.0.0",
     "metro-react-native-babel-preset": "^0.77.0",
     "react": "^18.2.0",
