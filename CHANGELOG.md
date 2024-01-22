@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.5](https://github.com/Hampfh/use-storage/compare/v1.2.4...v1.2.5) (2024-01-22)
+
+
+### Bug Fixes
+
+* Ignore CHANGELOG.md for npm ([e907776](https://github.com/Hampfh/use-storage/commit/e907776e0789b321c602dfbccf7be23bcbd60a64))
+* lib/src ignored ([e7ccdda](https://github.com/Hampfh/use-storage/commit/e7ccddadd4d5ca542e6e0e3275c7a391047ea7ad))
+
 ## [1.2.4](https://github.com/Hampfh/use-storage/compare/v1.2.3...v1.2.4) (2024-01-22)
 
 
