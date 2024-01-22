@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/Hampfh/use-storage/compare/v1.2.2...v1.2.3) (2024-01-22)
+
+
+### Bug Fixes
+
+* Entrypoint problems ([b8b97f5](https://github.com/Hampfh/use-storage/commit/b8b97f5a55f954b632b18e58faf0f93cbbf5d139))
+
 ## 1.2.2 (2024-01-22)
 
 
