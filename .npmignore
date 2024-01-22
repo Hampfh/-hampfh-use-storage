@@ -16,3 +16,4 @@ tests
 *.tgz
 Makefile
 vitest.*
+CHANGELOG.md
