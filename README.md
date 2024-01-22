@@ -1,5 +1,7 @@
 # useStorage
 
+[![Vitest](https://github.com/Hampfh/use-storage/actions/workflows/tests.yml/badge.svg)](https://github.com/Hampfh/use-storage/actions/workflows/tests.yml)
+
 Store fully typed reactive persistent state, supports both react & react native. useStorage wraps both async storage and redux toolkit allowing the benefits of reactivness and persistency at the same time.
 
 - [⚙️ Setup](#setup)

@@ -1,0 +1,26 @@
+name: "Vitest"
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Install Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "yarn" # Enable Yarn caching
+      - name: "Install Deps"
+        run: yarn install --frozen-lockfile
+      - name: "Test"
+        run: yarn vitest --coverage.enabled true
+      - name: "Report Coverage"
+        if: always()
+        uses: davelosert/vitest-coverage-report-action@v2
