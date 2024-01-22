@@ -9,5 +9,8 @@ src
 .babelrc
 tsconfig.json
 
+coverage
+tests
+
 *.tgz
 Makefile
