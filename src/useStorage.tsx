@@ -255,7 +255,7 @@ export function useStorage<
 		clear: async () => await clearStorageFile(file as string),
 		/**
 		 * Write to an entire substate, this will overwrite the entire state
-		 * @param data The new substate to write to the persistent storage, must match the specified schema
+		 * @param writeValue The new substate to write to the persistent storage, must match the specified schema
 		 */
 		write: async (
 			writeValue: Schema[Key] | ((state: Schema[Key]) => Schema[Key])
@@ -271,22 +271,22 @@ export function useStorage<
 		},
 		/**
 		 * Merge new fields into the substate, this will only update the specified fields, everything else will be left as is
-		 * @param updatedFields A partial object of the substate to update, this will merge the new fields with the existing substate
+		 * @param mergeValue A partial object of the substate to update, this will merge the new fields with the existing substate
 		 * @returns
 		 */
 		merge: async (
-			updatedFields:
+			mergeValue:
 				| Partial<Schema[keyof Schema]>
 				| ((
 						state: Schema[keyof Schema]
 				  ) => Partial<Schema[keyof Schema]>)
 		) => {
-			if (updatedFields == null) return
+			if (mergeValue == null) return
 
 			const subState =
-				typeof updatedFields === "function"
-					? updatedFields(value ?? getStateOrDefault())
-					: updatedFields
+				typeof mergeValue === "function"
+					? mergeValue(value ?? getStateOrDefault())
+					: mergeValue
 
 			return await writeStorageFile(file, {
 				...getStateOrDefault(),
