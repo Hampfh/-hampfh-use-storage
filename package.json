@@ -27,9 +27,9 @@
     "storage",
     "reactive"
   ],
-  "main": "./lib/index.js",
+  "main": "./lib/src/index.js",
   "scripts": {
-    "build": "rm -rf lib && babel src --out-dir lib --extensions \".ts,.tsx\" --copy-files && tsc --emitDeclarationOnly --outDir lib",
+    "build": "rm -rf lib && babel src --out-dir lib/src --extensions \".ts,.tsx\" --copy-files && tsc --emitDeclarationOnly --outDir lib",
     "bump": "npm version",
     "test": "vitest",
     "test:coverage": "vitest --coverage"
