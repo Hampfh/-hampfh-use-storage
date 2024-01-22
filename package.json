@@ -31,7 +31,8 @@
   "scripts": {
     "build": "rm -rf lib && babel src --out-dir lib --extensions \".ts,.tsx\" --copy-files && tsc --emitDeclarationOnly --outDir lib",
     "bump": "npm version",
-    "test": "vitest"
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@babel/cli": "^7.14.8",

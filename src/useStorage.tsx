@@ -197,6 +197,18 @@ export function useStorage<
 		}
 	}
 
+	/**
+	 * For those substates that support a default value,
+	 * use that together with the partial new state
+	 */
+	function getStateOrDefault() {
+		if (state == null) {
+			const oldStateResult = storageSchema[file].safeParse(undefined)
+			return oldStateResult.success ? oldStateResult.data : undefined
+		}
+		return state
+	}
+
 	// If value is null, use the default value if it exists
 	let value = state
 	if (state == null) {
@@ -245,34 +257,40 @@ export function useStorage<
 		 * Write to an entire substate, this will overwrite the entire state
 		 * @param data The new substate to write to the persistent storage, must match the specified schema
 		 */
-		write: async (state: Schema[Key]) =>
-			await writeStorageFile(file, state),
+		write: async (
+			writeValue: Schema[Key] | ((state: Schema[Key]) => Schema[Key])
+		) => {
+			if (typeof writeValue === "function") {
+				const state = getStateOrDefault()
+				return await writeStorageFile(
+					file,
+					(writeValue as (state: Schema[Key]) => Schema[Key])(state)
+				)
+			}
+			return await writeStorageFile(file, writeValue)
+		},
 		/**
 		 * Merge new fields into the substate, this will only update the specified fields, everything else will be left as is
 		 * @param updatedFields A partial object of the substate to update, this will merge the new fields with the existing substate
 		 * @returns
 		 */
-		merge: async (updatedFields: Partial<Schema[keyof Schema]>) => {
+		merge: async (
+			updatedFields:
+				| Partial<Schema[keyof Schema]>
+				| ((
+						state: Schema[keyof Schema]
+				  ) => Partial<Schema[keyof Schema]>)
+		) => {
 			if (updatedFields == null) return
 
-			/**
-			 * For those substates that support a default value,
-			 * use that together with the partial new state
-			 */
-			function getStateOrDefault() {
-				if (state == null) {
-					const oldStateResult =
-						storageSchema[file].safeParse(undefined)
-					return oldStateResult.success
-						? oldStateResult.data
-						: undefined
-				}
-				return state
-			}
+			const subState =
+				typeof updatedFields === "function"
+					? updatedFields(value ?? getStateOrDefault())
+					: updatedFields
 
 			return await writeStorageFile(file, {
 				...getStateOrDefault(),
-				...updatedFields
+				...subState
 			} as Schema[Key])
 		}
 	}
