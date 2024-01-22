@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/Hampfh/use-storage/compare/v1.2.3...v1.2.4) (2024-01-22)
+
+
+### Bug Fixes
+
+* Change to node release type ([58fc23e](https://github.com/Hampfh/use-storage/commit/58fc23e1bc7311cea50a27ba019a490d5e3be1e0))
+
 ## [1.2.3](https://github.com/Hampfh/use-storage/compare/v1.2.2...v1.2.3) (2024-01-22)
 
 
