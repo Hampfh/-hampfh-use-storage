@@ -1,6 +1,6 @@
 {
   "name": "@hampfh/use-storage",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": false,
   "description": "Typed persistency storage with reactivity",
   "license": "Apache-2.0",

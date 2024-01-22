@@ -9,6 +9,7 @@ src
 .babelrc
 tsconfig.json
 
+.github
 coverage
 tests
 
