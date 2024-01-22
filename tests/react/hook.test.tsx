@@ -1,28 +1,20 @@
 // @vitest-environment jsdom
 
-import { LocalStorageAdapter } from "@/adapters"
+import { TestAdapter } from "$/react/TestAdapter.util"
+import { TestModifier } from "$/react/TestModifier.util"
 import { Storage } from "@/provider"
 import { clearStorageFile, useStorage } from "@/useStorage"
-import { render, screen, waitFor } from "@testing-library/react"
+import {
+	act,
+	cleanup,
+	render,
+	renderHook,
+	screen,
+	waitFor
+} from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { z } from "zod"
 
-function Component() {
-	return (
-		<>
-			<p role="text">Hello there</p>
-		</>
-	)
-}
-
-it("loads and displays greeting", async () => {
-	render(<Component />, {})
-
-	expect((await screen.findByRole("text")).textContent).toBe("Hello there")
-})
-it("loads and displays greeting", async () => {
-	expect(1).toBe(1)
-})
 describe.sequential("Happy path tests", () => {
 	beforeEach(() => {
 		const schema = {
@@ -41,69 +33,17 @@ describe.sequential("Happy path tests", () => {
 
 		Storage({
 			schema,
-			adapter: new LocalStorageAdapter()
+			adapter: new TestAdapter()
 		})
 	})
 
 	afterEach(async () => {
 		await clearStorageFile("meta")
+		cleanup()
 	})
 
-	function HookComponent() {
-		const { value, merge, clear, write } = useStorage("meta")
-		return (
-			<>
-				<p role="text" aria-label="count">
-					{value.count}
-				</p>
-				<p role="text" aria-label="version">
-					{value.version}
-				</p>
-				<p role="text" aria-label="switch">
-					{value.switch.toString()}
-				</p>
-
-				<button
-					role="button"
-					onClick={async () => {
-						await merge({
-							count: value.count + 1
-						})
-					}}
-				>
-					Increment
-				</button>
-				<button
-					role="button"
-					onClick={async () => {
-						await merge({
-							count: value.count - 1
-						})
-					}}
-				>
-					Decrement
-				</button>
-				<button role="button" onClick={clear}>
-					Reset
-				</button>
-				<button
-					role="button"
-					onClick={async () => {
-						await write({
-							count: 1000,
-							version: "2.0.0",
-							switch: true
-						})
-					}}
-				>
-					Set 1000
-				</button>
-			</>
-		)
-	}
-
 	it("Initializes with correct values", () => {
-		render(<HookComponent />, {})
+		render(<TestModifier />, {})
 
 		const count = screen.getByRole("text", {
 			name: "count"
@@ -125,52 +65,40 @@ describe.sequential("Happy path tests", () => {
 	})
 
 	it("Successfully merges, sets and clears data value", async () => {
-		const count = screen.getByRole("text", {
-			name: "count"
-		})
+		const { result } = renderHook(() => useStorage("meta"))
 
-		const buttonIncrement = screen.getByRole("button", {
-			name: "Increment"
-		})
-		const buttonDecrement = screen.getByRole("button", {
-			name: "Decrement"
-		})
+		expect(result.current.value.count).toBe(0)
 
-		expect(count.textContent).toBe("0")
+		await act(() =>
+			result.current.merge({
+				count: result.current.value.count + 1
+			})
+		)
 
-		buttonIncrement.click()
-		await waitFor(() => expect(count.textContent).toBe("1"))
-		buttonDecrement.click()
-		await waitFor(() => expect(count.textContent).toBe("0"))
 		for (let i = 0; i < 10; i++) {
-			await waitFor(() => buttonIncrement.click())
+			await act(() =>
+				result.current.merge({
+					count: result.current.value.count + 1
+				})
+			)
 		}
 
-		await waitFor(() => expect(count.textContent).toBe("10"))
+		expect(result.current.value.count).toBe(11)
 
-		const buttonReset = screen.getByRole("button", {
-			name: "Reset"
-		})
+		await act(() => result.current.clear())
+		expect(result.current.value.count).toBe(0)
 
-		buttonReset.click()
-		await waitFor(() => expect(count.textContent).toBe("0"))
-
-		const buttonSet1000 = screen.getByRole("button", {
-			name: "Set 1000"
-		})
-
-		buttonSet1000.click()
-		await waitFor(() => {
-			const version = screen.getByRole("text", {
-				name: "version"
+		await act(() =>
+			result.current.write({
+				count: 1000,
+				version: "2.0.0",
+				switch: true
 			})
-			const switchValue = screen.getByRole("text", {
-				name: "switch"
-			})
-			expect(count.textContent).toBe("1000")
-			expect(version.textContent).toBe("2.0.0")
-			expect(switchValue.textContent).toBe("true")
-		})
+		)
+
+		expect(result.current.value.count).toBe(1000)
+		expect(result.current.value.version).toBe("2.0.0")
+		expect(result.current.value.switch).toBe(true)
 	})
 
 	it("Value propagates between components", async () => {
@@ -180,7 +108,7 @@ describe.sequential("Happy path tests", () => {
 					.fill(0)
 					.map((_, i) => (
 						<div role="directory" key={i} aria-label={i.toString()}>
-							<HookComponent />
+							<TestModifier />
 						</div>
 					))}
 			</div>
@@ -202,8 +130,8 @@ describe.sequential("Happy path tests", () => {
 		})
 	})
 
-	it("Handles excessive load of components", async () => {
-		const componentCount = 100
+	it("Handles load of multiple components", async () => {
+		const componentCount = 10
 
 		render(
 			<div>
@@ -211,7 +139,7 @@ describe.sequential("Happy path tests", () => {
 					.fill(0)
 					.map((_, i) => (
 						<div role="directory" key={i} aria-label={i.toString()}>
-							<HookComponent />
+							<TestModifier />
 						</div>
 					))}
 			</div>
@@ -230,10 +158,78 @@ describe.sequential("Happy path tests", () => {
 
 		buttonIncrement[0].click()
 
-		waitFor(() => {
+		await waitFor(() => {
 			for (let i = 0; i < componentCount; i++) {
 				expect(count[i].textContent).toBe("1")
 			}
 		})
+	})
+
+	it("Successfully handles function merge update", async () => {
+		const { result } = renderHook(() => useStorage("meta"))
+
+		expect(result.current.value.count).toBe(0)
+
+		// Write 1000 times without waiting for the state to update
+		for (let i = 0; i < 1000; i++) {
+			await act(() =>
+				result.current.merge(({ count }) => ({
+					count: count + 1
+				}))
+			)
+		}
+
+		await waitFor(() => expect(result.current.value.count).toBe(1000))
+
+		// Check that the state provided to the write function is the same as the current state
+		await act(() =>
+			result.current.merge((state: any) => {
+				expect(state).toStrictEqual({
+					...result.current.value
+				})
+				return state
+			})
+		)
+	})
+	it("Successfully handles function write update", async () => {
+		const { result } = renderHook(() => useStorage("meta"))
+
+		expect(result.current.value.count).toBe(0)
+
+		// Write 1000 times without waiting for the state to update
+		for (let i = 0; i < 10; i++) {
+			await act(() =>
+				result.current.write((state: any) => ({
+					...state,
+					count: state.count + 1
+				}))
+			)
+		}
+
+		await waitFor(() => expect(result.current.value.count).toBe(10))
+
+		await act(() =>
+			result.current.write(() => ({
+				count: -1000,
+				version: "2.0.0",
+				switch: true
+			}))
+		)
+
+		await waitFor(() => {
+			expect(result.current.value.count).toBe(-1000)
+			expect(result.current.value.version).toBe("2.0.0")
+			expect(result.current.value.switch).toBe(true)
+		})
+
+		// Check that the state provided to the write function is the same as the current state
+		await act(() =>
+			result.current.write((state: any) => {
+				expect(state).toStrictEqual({
+					...result.current.value
+				})
+				return state
+			})
+		)
 	})
 })

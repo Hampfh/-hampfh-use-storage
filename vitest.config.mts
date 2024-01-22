@@ -3,15 +3,16 @@ import path from "path"
 import { defineConfig } from "vite"
 
 export default defineConfig({
-	test: {
-		environment: "jsdom",
-		coverage: {
-			reporter: ["text", "json-summary", "json"]
-		}
-	},
-	resolve: {
-		alias: {
-			"@": path.resolve(__dirname, "./src/")
-		}
-	}
+  test: {
+    coverage: {
+      reporter: ["text", "json-summary", "json"],
+      exclude: ["node_modules/**", "examples/**", "lib/**"]
+    }
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src/"),
+      $: path.resolve(__dirname, "./tests/")
+    }
+  }
 })
