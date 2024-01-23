@@ -192,8 +192,8 @@ export function useStorage<
 		const state = store.getState() as RootState
 		const substate = selectPersistedField(state, file as string)
 		if (value !== state) {
-			if (!initialized) setInitialized(true)
 			setState(substate)
+			if (!initialized) setInitialized(true)
 		}
 	}
 
