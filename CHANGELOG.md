@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.6](https://github.com/Hampfh/use-storage/compare/v1.2.5...v1.2.6) (2024-01-23)
+
+
+### Bug Fixes
+
+* Initialize after setting state, reverse order ([5127d5d](https://github.com/Hampfh/use-storage/commit/5127d5d8d165ea3630243743b1f340e258548c8c))
+* Unsynced function comment ([8979ebd](https://github.com/Hampfh/use-storage/commit/8979ebd00a28eb7d65fb9d27a222d225a8cf0443))
+
 ## [1.2.5](https://github.com/Hampfh/use-storage/compare/v1.2.4...v1.2.5) (2024-01-22)
 
 
